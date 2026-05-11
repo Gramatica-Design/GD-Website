@@ -122,7 +122,7 @@ function footerTextAnimation() {
 
   document.querySelectorAll("[data-text-scroll-in]").forEach((container) => {
     // Direkt die footer_text-big Elemente holen, nicht die Wrapper
-    const textBlocks = [...container.querySelectorAll(".footer_text-big")];
+    const textBlocks = [...container.querySelectorAll(".text-big")];
     const allChars = [];
 
     textBlocks.forEach((block) => {
@@ -139,6 +139,7 @@ function footerTextAnimation() {
         trigger: container,
         start: "top 80%",
         toggleActions: "play none none none",
+        once: true,
       },
       onComplete: () => {
         allChars.forEach((char, i) => {

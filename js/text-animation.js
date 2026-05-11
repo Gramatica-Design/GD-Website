@@ -31,7 +31,7 @@ function init() {
 
 function pageLoadAnimation() {
   // Nur auf Desktop ausführen
-  if (!window.matchMedia("(min-width: 992px)").matches) return;
+  //if (!window.matchMedia("(min-width: 992px)").matches) return;
 
   //alles in einzelne Buchstaben aufsplitten
   document.querySelectorAll("[data-text-fade-in]").forEach((el) => {
@@ -39,14 +39,14 @@ function pageLoadAnimation() {
 
     //Delay für Farbanimation setzen. Animation findet in CSS statt. Y-Move wird unten separat via GSAP animiert
     setDelayOnCharsForCSSAnimation(chars);
-    //chars.forEach((c, i) => console.log(i, c.textContent));
 
-    const timeline = createMagnetAnimationTimeline(chars);
+    if (window.matchMedia("(min-width: 992px)").matches) {
+      const timeline = createMagnetAnimationTimeline(chars);
+      const st = setUpScrollTriggerForMagnetAnimation(timeline); //ScrollTrigger erstellen
+      st.refresh(); //ScrollTrigger manuell refreshen, damit die Animation auch beim ersten Scrollen funktioniert
+    }
 
-    const st = setUpScrollTriggerForMagnetAnimation(timeline); //ScrollTrigger erstellen
-
-    st.refresh(); //ScrollTrigger manuell refreshen, damit die Animation auch beim ersten Scrollen funktioniert
-    yCharAnimation(chars); //der refresh auf dem Scrolltrigger muss zuerst kommen, sonst gibts wieder komische Scrolleffekte
+    yCharAnimation(chars); //läuft auf allen Geräten
   }); //end of forEach
 } //end of splitWithGSAP
 
@@ -127,7 +127,7 @@ window.addEventListener("scroll", removeOverflowOnScroll, { passive: true });
 //#endregion
 
 function footerTextAnimation() {
-  if (!window.matchMedia("(min-width: 992px)").matches) return;
+  // if (!window.matchMedia("(min-width: 992px)").matches) return;
 
   document.querySelectorAll("[data-text-scroll-in]").forEach((container) => {
     // Direkt die footer_text-big Elemente holen, nicht die Wrapper

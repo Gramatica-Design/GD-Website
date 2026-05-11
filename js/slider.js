@@ -261,8 +261,8 @@ const reviewsSlider = () => {
     });
 
     slides.forEach((slide, i) => {
-      const oldOffset = (prev - i + total) % total;
-      const newOffset = (current - i + total) % total;
+      const oldOffset = (i - prev + total) % total;
+      const newOffset = (i - current + total) % total;
       // Bei weniger Slides als Positionen: Offsets auf sichtbaren Bereich begrenzen
       const visiblePositions = Math.min(total, config.positions.length - 1);
       const newPos = getPos(Math.min(newOffset, config.positions.length - 1));
@@ -447,8 +447,8 @@ const reviewsSlider = () => {
   };
 
   // --- Events ---
-  btnNext?.addEventListener("click", () => goTo(current - 1, 1));
-  btnPrev?.addEventListener("click", () => goTo(current + 1, -1));
+  btnNext?.addEventListener("click", () => goTo(current + 1, 1));
+  btnPrev?.addEventListener("click", () => goTo(current - 1, -1));
   dots.forEach((dot, i) =>
     dot.addEventListener("click", () => goTo(i, i < current ? -1 : 1)),
   );
@@ -477,8 +477,8 @@ const reviewsSlider = () => {
       const delta = touchStartX - e.changedTouches[0].clientX;
       if (Math.abs(delta) < config.swipeThreshold) return;
       delta > 0
-        ? goTo(current - 1, 1) // swipe links = next
-        : goTo(current + 1, -1); // swipe rechts = prev
+        ? goTo(current + 1, 1) // swipe links = next
+        : goTo(current - 1, -1); // swipe rechts = prev
     },
     { passive: true },
   );

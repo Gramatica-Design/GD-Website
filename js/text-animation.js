@@ -115,6 +115,15 @@ function setUpScrollTriggerForMagnetAnimation(magnetAnimation) {
 }
 
 init();
+
+// overflow:hidden beim ersten Scroll entfernen, damit Buchstaben beim Scrollen nicht abgeschnitten werden
+const removeOverflowOnScroll = () => {
+  document.querySelectorAll(".split-line").forEach((line) => {
+    line.style.overflow = "visible";
+  });
+  window.removeEventListener("scroll", removeOverflowOnScroll);
+};
+window.addEventListener("scroll", removeOverflowOnScroll, { passive: true });
 //#endregion
 
 function footerTextAnimation() {

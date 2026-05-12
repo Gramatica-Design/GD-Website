@@ -175,25 +175,32 @@
 })();
 
 // Link-Handling: Öffnet URL aus data-href in neuem Tab
+const TAP_THRESHOLD = 10; // px Bewegung bis es als Scroll gilt
+
 document.querySelectorAll("[animated-item]").forEach((item) => {
   item.addEventListener("click", () => {
     const url = item.dataset.href;
     if (url) window.open(url, "_blank");
   });
 
-  // Mobile
-  item.addEventListener("touchend", (e) => {
-    const url = item.dataset.href;
-    alert("url: " + url); // temporär
-    if (url) {
-      e.preventDefault();
-      window.open(url, "_blank");
-    }
-  });
-});
+  // Mobile: nur öffnen wenn es ein Tap war (kein Scroll)
+  let touchStartX = 0;
+  let touchStartY = 0;
 
-document.querySelectorAll("[animated-item]").forEach((item) => {
-  item.addEventListener("touchstart", () => {
-    item.style.background = "red"; // sichtbares Feedback
+  item.addEventListener("touchstart", (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  item.addEventListener("touchend", (e) => {
+    const deltaX = Math.abs(e.changedTouches[0].clientX - touchStartX);
+    const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+    if (deltaX < TAP_THRESHOLD && deltaY < TAP_THRESHOLD) {
+      const url = item.dataset.href;
+      if (url) {
+        e.preventDefault();
+        window.open(url, "_blank");
+      }
+    }
   });
 });

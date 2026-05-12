@@ -1,3 +1,5 @@
+if (window.matchMedia("(min-width: 992px)").matches) {
+
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 let stepPairs = [];
 const referenceStep = document.querySelector("[step='reference']");
@@ -185,3 +187,5 @@ window.addEventListener("load", () => {
     });
   });
 });
+
+} // end desktop check

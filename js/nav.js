@@ -8,19 +8,38 @@ const navLinks = document.querySelectorAll('.nav_menu_link');
 
 let isOpen = false;
 let lottieAnim = null;
+let lottieTween = null;
 
 window.Webflow = window.Webflow || [];
 window.Webflow.push(() => {
   const navLottieEl = document.querySelector('.nav_lottie');
   const all = Webflow.require('lottie').lottie.getRegisteredAnimations();
-  lottieAnim = all.find(a => navLottieEl.contains(a.wrapper));
+
+  // Lottie-Instanz finden: zuerst via wrapper, dann via direkten Match, dann Fallback auf erste
+  lottieAnim =
+    all.find(a => navLottieEl && navLottieEl.contains(a.wrapper)) ||
+    all.find(a => a.wrapper === navLottieEl) ||
+    all[0] ||
+    null;
+
+  if (lottieAnim) lottieAnim.goToAndStop(0, true);
 });
 
 const playLottie = (reverse) => {
   if (!lottieAnim) return;
-  const half = lottieAnim.totalFrames * 0.5;
-  lottieAnim.setSpeed(half / lottieAnim.frameRate);
-  lottieAnim.playSegments(reverse ? [half, 0] : [0, half], true);
+  const half = Math.floor(lottieAnim.totalFrames * 0.5);
+  const fromFrame = reverse ? half : 0;
+  const toFrame = reverse ? 0 : half;
+
+  if (lottieTween) lottieTween.kill();
+
+  const obj = { frame: fromFrame };
+  lottieTween = gsap.to(obj, {
+    frame: toFrame,
+    duration: 1,
+    ease: 'power1.inOut',
+    onUpdate: () => lottieAnim.goToAndStop(Math.round(obj.frame), true),
+  });
 };
 
 const openMenu = () => {

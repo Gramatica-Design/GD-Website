@@ -10,6 +10,11 @@ let isOpen = false;
 let lottieAnim = null;
 let lottieTween = null;
 
+// Wrapper startet bei height:0 damit er keine Klicks abfängt wenn geschlossen
+if (navWrapper) {
+  gsap.set(navWrapper, { height: 0, overflow: 'hidden' });
+}
+
 window.Webflow = window.Webflow || [];
 window.Webflow.push(() => {
   const navLottieEl = document.querySelector('.nav_lottie');
@@ -45,12 +50,14 @@ const playLottie = (reverse) => {
 const openMenu = () => {
   isOpen = true;
   navMenu.classList.add('is-open');
+  if (navWrapper) gsap.set(navWrapper, { height: '', overflow: '' }); // CSS calc übernimmt sofort
   playLottie(false);
 };
 
 const closeMenu = () => {
   isOpen = false;
   navMenu.classList.remove('is-open');
+  if (navWrapper) gsap.set(navWrapper, { height: 0, overflow: 'hidden', delay: 0.5 }); // nach Nav-Animation schliessen
   playLottie(true);
 };
 

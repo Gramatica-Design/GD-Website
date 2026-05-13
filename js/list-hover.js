@@ -1,4 +1,6 @@
 (function () {
+  if (!window.matchMedia("(min-width: 992px)").matches) return;
+
   const config = {
     durationIn: 0.45,
     durationOut: 0.5,

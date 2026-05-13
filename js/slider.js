@@ -477,8 +477,8 @@ const reviewsSlider = () => {
       const delta = touchStartX - e.changedTouches[0].clientX;
       if (Math.abs(delta) < config.swipeThreshold) return;
       delta > 0
-        ? goTo(current + 1, 1) // swipe links = next
-        : goTo(current - 1, -1); // swipe rechts = prev
+        ? goTo(current - 1, -1) // swipe links = prev
+        : goTo(current + 1, 1); // swipe rechts = next
     },
     { passive: true },
   );

@@ -1,6 +1,8 @@
 //#region Magnetic Button
 /* ********************** Magnetic Button und Links ****************** */
 
+if (window.matchMedia("(min-width: 992px)").matches) {
+
 const targets = document.querySelectorAll('.link_button, .nav_menu_link, [data-magnetic]');
 
 targets.forEach((el) => {
@@ -48,4 +50,6 @@ targets.forEach((el) => {
     }
   });
 });
+
+} // end desktop check
 //#endregion

@@ -1,13 +1,22 @@
 //#region Cursor
 /* *************************** Cursor ******************************** */
 
-gsap.set(".cursor", { xPercent: -50, yPercent: -50 });
+if (window.matchMedia("(min-width: 992px)").matches) {
 
-let xTo = gsap.quickTo(".cursor", "x", { duration: 0.3, ease: "power3" });
-let yTo = gsap.quickTo(".cursor", "y", { duration: 0.3, ease: "power3" });
+  const cursor = document.querySelector(".cursor");
+  if (cursor) {
 
-window.addEventListener("mousemove", e => {
-  xTo(e.clientX);
-  yTo(e.clientY);
-});
+    gsap.set(cursor, { xPercent: -50, yPercent: -50 });
+
+    const xTo = gsap.quickTo(cursor, "x", { duration: 0.15, ease: "power2.out" });
+    const yTo = gsap.quickTo(cursor, "y", { duration: 0.15, ease: "power2.out" });
+
+    window.addEventListener("mousemove", (e) => {
+      xTo(e.clientX);
+      yTo(e.clientY);
+    });
+
+  }
+
+} // end desktop check
 //#endregion

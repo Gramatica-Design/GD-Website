@@ -137,30 +137,10 @@
     });
   }
 
-  const cursor = document.querySelector(".cursor");
-  function animateCursor(isEntering) {
-    if (isEntering) {
-      gsap.to(cursor, {
-        height: "3rem",
-        width: "3rem",
-        duration: 0.3,
-        ease: config.cursorImg.easeIn,
-      });
-    } else {
-      gsap.to(cursor, {
-        height: "1rem",
-        width: "1rem",
-        duration: 0.2,
-        ease: config.cursorImg.easeOut,
-      });
-    }
-  }
-
   document.querySelectorAll("[animated-item]").forEach((item) => {
     itemState.set(item, {});
 
     item.addEventListener("mouseenter", (e) => {
-      animateCursor(true);
       const dir = getEnterDirection(item, e.clientY);
       itemState.get(item).enterDir = dir;
       animateIn(item, dir);
@@ -168,7 +148,6 @@
     });
 
     item.addEventListener("mouseleave", (e) => {
-      animateCursor(false);
       const exitDir = getExitDirection(item, e.clientY);
       animateOut(item, exitDir);
       hideCursorImg(item);

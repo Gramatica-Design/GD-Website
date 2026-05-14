@@ -11,7 +11,8 @@ let lottieAnim = null;
 let lottieTween = null;
 
 // Wrapper startet bei height:0 damit er keine Klicks abfängt wenn geschlossen
-if (navWrapper) {
+// Nur auf Mobile/Tablet — auf Desktop ist der Wrapper immer sichtbar
+if (navWrapper && !window.matchMedia('(min-width: 992px)').matches) {
   gsap.set(navWrapper, { height: 0, overflow: 'hidden' });
 }
 
@@ -47,17 +48,19 @@ const playLottie = (reverse) => {
   });
 };
 
+const isMobile = () => !window.matchMedia('(min-width: 992px)').matches;
+
 const openMenu = () => {
   isOpen = true;
   navMenu.classList.add('is-open');
-  if (navWrapper) gsap.set(navWrapper, { height: '', overflow: '' }); // CSS calc übernimmt sofort
+  if (navWrapper && isMobile()) gsap.set(navWrapper, { height: '', overflow: '' }); // CSS calc übernimmt sofort
   playLottie(false);
 };
 
 const closeMenu = () => {
   isOpen = false;
   navMenu.classList.remove('is-open');
-  if (navWrapper) gsap.set(navWrapper, { height: 0, overflow: 'hidden', delay: 0.5 }); // nach Nav-Animation schliessen
+  if (navWrapper && isMobile()) gsap.set(navWrapper, { height: 0, overflow: 'hidden', delay: 0.5 }); // nach Nav-Animation schliessen
   playLottie(true);
 };
 

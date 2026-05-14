@@ -4,24 +4,16 @@
 const navButton = document.querySelector('.nav_button');
 const navMenu = document.querySelector('.nav_menu');
 const navWrapper = document.querySelector('.nav_menu-mobile-wrapper');
-const navLinks = document.querySelectorAll('.nav_menu_link');
 
 let isOpen = false;
 let lottieAnim = null;
 let lottieTween = null;
-
-// Wrapper startet bei height:0 damit er keine Klicks abfängt wenn geschlossen
-// Nur auf Mobile/Tablet — auf Desktop ist der Wrapper immer sichtbar
-if (navWrapper && !window.matchMedia('(min-width: 992px)').matches) {
-  gsap.set(navWrapper, { height: 0, overflow: 'hidden' });
-}
 
 window.Webflow = window.Webflow || [];
 window.Webflow.push(() => {
   const navLottieEl = document.querySelector('.nav_lottie');
   const all = Webflow.require('lottie').lottie.getRegisteredAnimations();
 
-  // Lottie-Instanz finden: zuerst via wrapper, dann via direkten Match, dann Fallback auf erste
   lottieAnim =
     all.find(a => navLottieEl && navLottieEl.contains(a.wrapper)) ||
     all.find(a => a.wrapper === navLottieEl) ||
@@ -48,35 +40,38 @@ const playLottie = (reverse) => {
   });
 };
 
-const isMobile = () => !window.matchMedia('(min-width: 992px)').matches;
-
-const openMenu = () => {
-  isOpen = true;
-  navMenu.classList.add('is-open');
-  if (navWrapper && isMobile()) gsap.set(navWrapper, { height: '', overflow: '' }); // CSS calc übernimmt sofort
-  playLottie(false);
-};
-
 const closeMenu = () => {
+  if (!isOpen) return;
   isOpen = false;
-  navMenu.classList.remove('is-open');
-  if (navWrapper && isMobile()) gsap.set(navWrapper, { height: 0, overflow: 'hidden', delay: 0.5 }); // nach Nav-Animation schliessen
+  navMenu?.classList.remove('is-open');
+  setTimeout(() => {
+    navWrapper?.classList.remove('is-open');
+  }, 600);
   playLottie(true);
 };
 
 navButton?.addEventListener('click', () => {
-  isOpen ? closeMenu() : openMenu();
-});
-
-navWrapper?.addEventListener('click', (e) => {
-  if (isOpen && !navMenu.contains(e.target) && !navButton.contains(e.target)) {
+  if (!isOpen) {
+    // Öffnen
+    isOpen = true;
+    navWrapper?.classList.add('is-open');
+    navMenu?.classList.add('is-open');
+    playLottie(false);
+  } else {
     closeMenu();
   }
 });
 
-navLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    if (isOpen) closeMenu();
-  });
+// Schliessen bei Klick auf einen Navigationslink
+document.querySelectorAll('.nav_menu_link').forEach(link => {
+  link.addEventListener('click', closeMenu);
 });
+
+// Schliessen bei Klick ausserhalb des Menüs
+document.addEventListener('click', (e) => {
+  if (isOpen && !navMenu?.contains(e.target) && !navButton?.contains(e.target)) {
+    closeMenu();
+  }
+});
+
 //#endregion

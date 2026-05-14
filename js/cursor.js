@@ -1,7 +1,7 @@
 //#region Cursor
 /* *************************** Cursor ******************************** */
 
-if (window.matchMedia("(min-width: 992px)").matches) {
+if (window.matchMedia("(pointer: fine)").matches) {
 
   const cursor = document.querySelector(".cursor");
   if (cursor) {

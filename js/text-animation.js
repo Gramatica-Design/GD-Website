@@ -119,6 +119,17 @@ function splitUpText(el) {
     propIndex: true, //jeder Char bekommt automatisch --char als CSS Variable mit seinem Index
   });
   const chars = split.chars; //alle chars in einem Array
+
+  // Padding/Margin nur für Chars innerhalb von .split-line.accent setzen,
+  // damit kursive Buchstaben nicht abgeschnitten werden.
+  // Direkt als inline style, damit SplitText-Styles nicht überschreiben.
+  chars.forEach((char) => {
+    if (char.closest(".split-line.accent")) {
+      char.style.padding = "0.1em";
+      char.style.margin = "-0.1em";
+    }
+  });
+
   return chars;
 }
 

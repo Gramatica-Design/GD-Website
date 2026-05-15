@@ -85,7 +85,7 @@ const initDesktop = (steps, stickyContainer, triggerContainer, referenceStep, gr
   steps.forEach((step, i) => {
     ScrollTrigger.create({
       trigger: triggers[i],
-      start: 'top 30%',
+      start: 'top 20%',
       scrub: true,
       onEnter: () => {
         const scroll = getScrollDistance(i);

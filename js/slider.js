@@ -191,7 +191,6 @@ const reviewsSlider = () => {
           const fromHeight = wrapper.offsetHeight;
           wrapper.classList.add("is-expanded");
           const toHeight = wrapper.scrollHeight;
-          console.log("fromHeight:", fromHeight, "toHeight:", toHeight);
 
           gsap.fromTo(
             wrapper,

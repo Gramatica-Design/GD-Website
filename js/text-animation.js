@@ -46,23 +46,62 @@ function pageLoadAnimation() {
       st.refresh(); //ScrollTrigger manuell refreshen, damit die Animation auch beim ersten Scrollen funktioniert
     }
 
-    yCharAnimation(chars); //läuft auf allen Geräten
+    if (window.scrollY === 0) {
+      // Frischer Load ohne Scroll: Entrance-Animation mit Scroll-Lock
+      yCharAnimation(chars);
+    } else {
+      // Bereits gescrollt (Reload bei gescrollter Position): Chars sofort
+      // einblenden ohne Animation, damit kein Konflikt mit dem ScrollTrigger entsteht
+      gsap.set(chars, { y: 0, opacity: 1 });
+      chars.forEach((char) => char.classList.add("animate"));
+    }
   }); //end of forEach
 } //end of splitWithGSAP
 
+// Scroll-Lock: Events abfangen statt overflow:hidden –
+// Scrollbalken bleibt sichtbar, kein Layout-Shift.
+const _scrollLock = {
+  wheel:   (e) => e.preventDefault(),
+  touchmove: (e) => e.preventDefault(),
+  keydown: (e) => {
+    const keys = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "];
+    if (keys.includes(e.key)) e.preventDefault();
+  },
+};
+function lockScroll() {
+  window.addEventListener("wheel",    _scrollLock.wheel,    { passive: false });
+  window.addEventListener("touchmove", _scrollLock.touchmove, { passive: false });
+  window.addEventListener("keydown",  _scrollLock.keydown);
+}
+function unlockScroll() {
+  window.removeEventListener("wheel",    _scrollLock.wheel);
+  window.removeEventListener("touchmove", _scrollLock.touchmove);
+  window.removeEventListener("keydown",  _scrollLock.keydown);
+}
+
 function yCharAnimation(chars) {
+  // Scroll sperren, damit die Magnet-ScrollTrigger-Animation nicht mit der
+  // Entrance-Animation kollidiert. Nur wenn die Seite noch nicht gescrollt
+  // wurde (frischer Aufruf). Bei Reload-mit-Scroll wird der Lock übersprungen,
+  // damit der ScrollTrigger die Buchstaben sofort korrekt positioniert.
+  const shouldLockScroll = window.scrollY === 0;
+  if (shouldLockScroll) lockScroll();
+
   gsap.from(chars, {
     y: "110%",
     opacity: 0,
     ease: "power2.out",
-    delay: config.fadeIn.delay, //Delay bevor die erste char animiert wird
+    delay: config.fadeIn.delay,
     stagger: {
       each: config.fadeIn.staggerEach,
-    }, //Stagger zwischen den chars ({each: 0.03} ist die Objektschreibweise)
+    },
     onComplete: () => {
       chars.forEach((char) => {
         char.classList.add("animate");
       });
+      // Scroll wieder freigeben – Buchstaben sind jetzt an ihrem Platz,
+      // ScrollTrigger kann sauber übernehmen.
+      if (shouldLockScroll) unlockScroll();
     },
   });
 }

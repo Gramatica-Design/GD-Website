@@ -64,6 +64,10 @@ const reviewsSlider = () => {
 
   // --- DOM ---
   const mask = document.querySelector(".reviews_carousel-mask");
+
+  // Thumbnail-Höhe in px = 19% der Container-BREITE → immer quadratisch,
+  // egal ob der Container quadratisch ist (Desktop) oder nicht (Mobile).
+  const getThumbHeight = () => (mask ? Math.round(mask.offsetWidth * 0.19) : 0);
   const slides = gsap.utils.toArray(".reviews_slide");
   const contents = gsap.utils.toArray(".reviews_content");
   const btnNext = document.querySelector(".reviews_btn-next");
@@ -91,8 +95,8 @@ const reviewsSlider = () => {
 
   // es gibt 4 Positionen: 0=aktiv, 1=naechste, 2=uebernachste, 3=wartet auf Einzug von links
   // sollte es mehr als 4 slides geben, werden die weiteren wie die 3. position behandelt (ausserhalb links)
-  const getPos = (offset) =>
-    config.positions[offset] ?? {
+  const getPos = (offset) => {
+    const base = config.positions[offset] ?? {
       left: "-25%",
       bottom: "0%",
       width: "19%",
@@ -102,6 +106,9 @@ const reviewsSlider = () => {
       opacity: 0,
       borderRadius: "0.5rem",
     };
+    // Thumbnails (offset > 0) immer mit pixel-basierter Höhe = Breite → quadratisch
+    return offset > 0 ? { ...base, height: getThumbHeight() } : base;
+  };
 
   // --- Init ---
   const initSlides = () => {
@@ -287,7 +294,7 @@ const reviewsSlider = () => {
                 left: newPos.left,
                 bottom: newPos.bottom,
                 width: "19%",
-                height: "19%",
+                height: getThumbHeight(),
                 borderRadius: "0.5rem",
                 filter: "grayscale(1)",
                 opacity: total <= 3 ? 1 : 0, // bei 3 slides bleibt es sichtbar

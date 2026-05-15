@@ -186,10 +186,11 @@ const reviewsSlider = () => {
 
         if (!isExpanded) {
           // Aufklappen
+          // is-expanded sofort setzen (entfernt -webkit-line-clamp), damit
+          // der Text während der Höhen-Animation sichtbar wird.
           const fromHeight = wrapper.offsetHeight;
           wrapper.classList.add("is-expanded");
           const toHeight = wrapper.scrollHeight;
-          wrapper.classList.remove("is-expanded");
 
           gsap.fromTo(
             wrapper,
@@ -199,7 +200,6 @@ const reviewsSlider = () => {
               duration: 0.5,
               ease: "power2.inOut",
               onComplete: () => {
-                wrapper.classList.add("is-expanded");
                 gsap.set(wrapper, { height: "auto" });
               },
             },

@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dokumentation — Gramatica Design New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;1,14..32,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+  <style>
+    /* ── Reset & Tokens ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:       #66b2ef;
+      --blue-dim:   #66b2ef22;
+      --black:      #0f0f0f;
+      --white:      #ffffff;
+      --gray-50:    #f8f8f8;
+      --gray-100:   #f0f0f0;
+      --gray-200:   #e4e4e4;
+      --gray-400:   #a0a0a0;
+      --gray-600:   #5c5c5c;
+      --gray-800:   #2c2c2c;
+      --sidebar-w:  268px;
+      --content-w:  800px;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--black);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      border-right: 1px solid var(--gray-200);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 2px; }
+
+    .sidebar-header {
+      padding: 2rem 1.5rem 1.25rem;
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 0.25rem;
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--black);
+      letter-spacing: -0.01em;
+    }
+
+    .sidebar-meta {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-top: 0.25rem;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0 2rem;
+      flex: 1;
+    }
+
+    .nav-section {
+      margin-bottom: 0.125rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1.5rem;
+      font-size: 13px;
+      color: var(--gray-600);
+      text-decoration: none;
+      line-height: 1.4;
+      border-left: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .nav-link:hover {
+      color: var(--black);
+      background: var(--gray-50);
+    }
+
+    .nav-link.is-active {
+      color: var(--blue);
+      border-left-color: var(--blue);
+      background: var(--blue-dim);
+      font-weight: 500;
+    }
+
+    .nav-link.is-parent {
+      font-weight: 500;
+      color: var(--black);
+      font-size: 13px;
+      margin-top: 0.5rem;
+    }
+
+    .nav-link.is-child {
+      padding-left: 2.5rem;
+      font-size: 12.5px;
+    }
+
+    .nav-num {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-400);
+      font-variant-numeric: tabular-nums;
+      min-width: 1.5em;
+    }
+
+    /* ── Main ───────────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 3.5rem 3rem 6rem;
+      max-width: var(--content-w);
+    }
+
+    /* ── Page Header ─────────────────────────────────────────────── */
+    .page-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .page-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 0.75rem;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      color: var(--black);
+      margin-bottom: 1.25rem;
+    }
+
+    .page-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+    }
+
+    .meta-value {
+      font-size: 13px;
+      color: var(--gray-800);
+      font-family: var(--mono);
+    }
+
+    /* ── Sections ────────────────────────────────────────────────── */
+    .doc-section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 2rem;
+    }
+
+    .doc-section + .doc-section {
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-num {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      font-family: var(--mono);
+      letter-spacing: 0.02em;
+    }
+
+    h2 {
+      font-size: 1.375rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      color: var(--black);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--black);
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      scroll-margin-top: 2rem;
+      letter-spacing: -0.01em;
+    }
+
+    h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    p {
+      color: var(--gray-800);
+      margin-bottom: 0.75rem;
+    }
+
+    p:last-child { margin-bottom: 0; }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    strong { font-weight: 600; color: var(--black); }
+
+    /* ── Inline code ─────────────────────────────────────────────── */
+    code {
+      font-family: var(--mono);
+      font-size: 0.82em;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      color: var(--gray-800);
+    }
+
+    /* ── Code blocks ─────────────────────────────────────────────── */
+    pre {
+      margin: 1.25rem 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #1e1e1e;
+    }
+
+    pre code {
+      font-size: 13px;
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+      display: block;
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      line-height: 1.65;
+    }
+
+    /* ── Tables ──────────────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0 1.25rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    thead th {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      padding: 0.6rem 0.875rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-600);
+    }
+
+    tbody td {
+      border: 1px solid var(--gray-200);
+      padding: 0.55rem 0.875rem;
+      color: var(--gray-800);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td { border-bottom-color: var(--gray-200); }
+    tbody tr:hover td { background: var(--gray-50); }
+
+    /* ── Lists ────────────────────────────────────────────────────── */
+    ul, ol {
+      padding-left: 1.375rem;
+      color: var(--gray-800);
+      margin-bottom: 0.75rem;
+    }
+
+    li { margin-bottom: 0.25rem; }
+    li:last-child { margin-bottom: 0; }
+
+    /* ── Callouts ─────────────────────────────────────────────────── */
+    .callout {
+      background: var(--blue-dim);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 6px 6px 0;
+      padding: 0.875rem 1.125rem;
+      margin: 1rem 0;
+      font-size: 13.5px;
+      color: var(--gray-800);
+    }
+
+    .callout strong { color: var(--black); }
+
+    /* ── File badge ───────────────────────────────────────────────── */
+    .file-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 0.3rem 0.7rem;
+      color: var(--black);
+      margin-bottom: 0.75rem;
+    }
+
+    .file-badge::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--blue);
+      border-radius: 50%;
+    }
+
+    /* ── Meta row (geladen auf / abhängigkeiten) ─────────────────── */
+    .js-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--gray-50);
+      border-radius: 6px;
+      border: 1px solid var(--gray-200);
+      font-size: 13px;
+    }
+
+    .js-meta-item { display: flex; gap: 0.375rem; }
+    .js-meta-key { font-weight: 500; color: var(--gray-600); }
+    .js-meta-val { color: var(--gray-800); }
+
+    /* ── Divider ─────────────────────────────────────────────────── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--gray-200);
+      margin: 2rem 0;
+    }
+
+    /* ── Index chars ─────────────────────────────────────────────── */
+    .char-index {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin: 0.75rem 0 1.25rem;
+      font-family: var(--mono);
+      font-size: 13.5px;
+    }
+
+    .char-token {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.125rem;
+    }
+
+    .char-token .ch {
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      width: 2em;
+      height: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .char-token.is-magnetic .ch {
+      background: var(--blue-dim);
+      border-color: var(--blue);
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .char-token .idx {
+      font-size: 10px;
+      color: var(--gray-400);
+    }
+
+    .char-space { width: 0.75em; }
+
+    /* ── Responsive ──────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { padding: 2rem 1.5rem 4rem; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="layout">
+
+  <!-- ═══════════════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">Gramatica Design</div>
+      <div class="sidebar-title">Dokumentation</div>
+      <div class="sidebar-meta">Mai 2026</div>
+    </div>
+    <nav class="sidebar-nav">
+
+      <div class="nav-section">
+        <a href="#s1" class="nav-link is-parent">
+          <span class="nav-num">1</span> Site-Übersicht
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s2" class="nav-link is-parent">
+          <span class="nav-num">2</span> Script-Ladestrategie
+        </a>
+        <a href="#s2-1" class="nav-link is-child">Site-weite Scripts</a>
+        <a href="#s2-2" class="nav-link is-child">Home-Scripts</a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s3" class="nav-link is-parent">
+          <span class="nav-num">3</span> Git & CDN
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s4" class="nav-link is-parent">
+          <span class="nav-num">4</span> CSS-Embeds
+        </a>
+        <a href="#s4-1" class="nav-link is-child">Text-Animations-Styles</a>
+        <a href="#s4-2" class="nav-link is-child">global-styles</a>
+        <a href="#s4-3" class="nav-link is-child">cursor_embed</a>
+        <a href="#s4-4" class="nav-link is-child">w-designmode</a>
+        <a href="#s4-5" class="nav-link is-child">hero-magnet-animation</a>
+        <a href="#s4-6" class="nav-link is-child">custom_css</a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s5" class="nav-link is-parent">
+          <span class="nav-num">5</span> JavaScript-Dateien
+        </a>
+        <a href="#s5-1" class="nav-link is-child">cursor.js</a>
+        <a href="#s5-2" class="nav-link is-child">nav.js</a>
+        <a href="#s5-3" class="nav-link is-child">footer-form.js</a>
+        <a href="#s5-4" class="nav-link is-child">text-animation.js</a>
+        <a href="#s5-5" class="nav-link is-child">process.js</a>
+        <a href="#s5-6" class="nav-link is-child">slider.js</a>
+        <a href="#s5-7" class="nav-link is-child">list-hover.js</a>
+        <a href="#s5-8" class="nav-link is-child">feldlinien.js</a>
+        <a href="#s5-9" class="nav-link is-child">magnetic-button.js</a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s6" class="nav-link is-parent">
+          <span class="nav-num">6</span> Cursor-System
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s7" class="nav-link is-parent">
+          <span class="nav-num">7</span> Attribute &amp; Klassen
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s8" class="nav-link is-parent">
+          <span class="nav-num">8</span> GSAP Abhängigkeiten
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s9" class="nav-link is-parent">
+          <span class="nav-num">9</span> Lokale Entwicklung
+        </a>
+        <a href="#s9-2" class="nav-link is-child">HTTPS Setup (mkcert)</a>
+        <a href="#s9-3" class="nav-link is-child">Localhost aktivieren</a>
+        <a href="#s9-4" class="nav-link is-child">Workflow</a>
+        <a href="#s9-5" class="nav-link is-child">Android Debugging</a>
+      </div>
+
+      <div class="nav-section">
+        <a href="#s10" class="nav-link is-parent">
+          <span class="nav-num">10</span> Erweiterungen
+        </a>
+      </div>
+
+    </nav>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-eyebrow">Technische Dokumentation</div>
+      <h1 class="page-title">Gramatica Design New</h1>
+      <div class="page-meta">
+        <div class="meta-item">
+          <span class="meta-label">Webflow-Site</span>
+          <span class="meta-value">gramatica-design-new.webflow.io</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Site-ID</span>
+          <span class="meta-value">69bd5b60bc5707f31c858aa2</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Repository</span>
+          <span class="meta-value">Gramatica-Design/GD-Website</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Stand</span>
+          <span class="meta-value">Mai 2026</span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ═══ 1. SITE-ÜBERSICHT ══════════════════════════════════════ -->
+    <section id="s1" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2>Site-Übersicht &amp; Seiten</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Seite</th>
+              <th>Pfad</th>
+              <th>Typ</th>
+              <th>Scripts</th>
+              <th>Besonderheiten</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Home</strong></td>
+              <td><code>/</code></td>
+              <td>Statisch</td>
+              <td>Alle 9 Scripts</td>
+              <td>Hauptseite mit allen Animationen</td>
+            </tr>
+            <tr>
+              <td>Imprint</td>
+              <td><code>/imprint</code></td>
+              <td>Statisch</td>
+              <td>Site-Scripts (4)</td>
+              <td>Impressum</td>
+            </tr>
+            <tr>
+              <td>Privacy Policy</td>
+              <td><code>/privacy-policy</code></td>
+              <td>Statisch</td>
+              <td>Site-Scripts (4)</td>
+              <td>Datenschutzerklärung</td>
+            </tr>
+            <tr>
+              <td>404</td>
+              <td><code>/404</code></td>
+              <td>Statisch</td>
+              <td>Site-Scripts (4)</td>
+              <td>Fehlerseite</td>
+            </tr>
+            <tr>
+              <td>Style Guide</td>
+              <td><code>/style-guide</code></td>
+              <td>Draft</td>
+              <td>Site-Scripts (4)</td>
+              <td>Nur im Designer sichtbar</td>
+            </tr>
+            <tr>
+              <td>Services Template</td>
+              <td><code>/services</code></td>
+              <td>CMS Template</td>
+              <td>Site-Scripts (4)</td>
+              <td>Leistungs-Detailseite</td>
+            </tr>
+            <tr>
+              <td>Projects Template</td>
+              <td><code>/project</code></td>
+              <td>CMS Template</td>
+              <td>Site-Scripts (4)</td>
+              <td>Projekt-Detailseite</td>
+            </tr>
+            <tr>
+              <td>Reviews Template</td>
+              <td><code>/review</code></td>
+              <td>CMS Template</td>
+              <td>Site-Scripts (4)</td>
+              <td>Referenz-Detailseite</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Site-Scripts (4):</strong> <code>cursor.js</code>, <code>nav.js</code>, <code>footer-form.js</code>, <code>text-animation.js</code> — auf allen Seiten geladen.</p>
+    </section>
+
+
+    <!-- ═══ 2. SCRIPT-LADESTRATEGIE ════════════════════════════════ -->
+    <section id="s2" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2>Script-Ladestrategie</h2>
+      </div>
+
+      <p>Scripts werden dynamisch zur Laufzeit geladen — nicht als statische <code>&lt;script&gt;</code>-Tags. Dadurch kann zwischen dem jsDelivr-CDN (Produktion) und einem lokalen Live Server (Entwicklung) umgeschaltet werden, ohne den Webflow-Editor zu öffnen.</p>
+
+      <h3 id="s2-1">2.1 Site-weite Scripts</h3>
+      <p><strong>Wo:</strong> Site Settings → Custom Code → Before <code>&lt;/body&gt;</code><br>
+      Lädt vier Scripts auf <strong>allen Seiten</strong>. Umschaltung via <code>isLocal_ss</code>:</p>
+
+      <pre><code class="language-html">&lt;script&gt;
+  const isLocal_ss = false; // &lt;-- hier umschalten: true = localhost, false = CDN
+  const localIP_ss = 'https://localhost:5500';
+  const base_ss = isLocal_ss
+    ? localIP_ss + '/js'
+    : 'https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js';
+  const files_ss = [
+    "cursor.js",
+    "nav.js",
+    "footer-form.js",
+    "text-animation.js"
+  ];
+  files_ss.forEach((files_ss) => {
+    const script_ss = document.createElement('script');
+    script_ss.src = `${base_ss}/${files_ss}`;
+    document.head.appendChild(script_ss);
+  });
+&lt;/script&gt;</code></pre>
+
+      <h3 id="s2-2">2.2 Home-spezifische Scripts</h3>
+      <p><strong>Wo:</strong> Home Page → Settings → Custom Code → Before <code>&lt;/body&gt;</code><br>
+      Lädt fünf Scripts <strong>nur auf der Home-Seite</strong>. Umschaltung via <code>isLocal</code>:</p>
+
+      <pre><code class="language-html">&lt;script&gt;
+  const isLocal = false; // &lt;-- hier umschalten: true = localhost, false = CDN
+  const localIP = 'https://localhost:5500';
+  const base = isLocal
+    ? localIP + '/js'
+    : 'https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js';
+  const files = [
+    "process.js",
+    "slider.js",
+    "list-hover.js",
+    "feldlinien.js",
+    "magnetic-button.js",
+  ];
+  files.forEach((file) => {
+    const script = document.createElement('script');
+    script.src = `${base}/${file}`;
+    document.head.appendChild(script);
+  });
+&lt;/script&gt;</code></pre>
+
+      <div class="callout">
+        <strong>jsDelivr Cache purgen</strong> — nach einem Push auf <code>main</code>, wenn Änderungen nicht erscheinen:<br>
+        Tool: <a href="https://www.jsdelivr.com/tools/purge" target="_blank">jsdelivr.com/tools/purge</a><br>
+        Beispiel-URL: <code>https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/slider.js</code>
+      </div>
+    </section>
+
+
+    <!-- ═══ 3. GIT & CDN ════════════════════════════════════════════ -->
+    <section id="s3" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2>Git-Repository &amp; CDN</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Ressource</th><th>URL</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GitHub Repository</td>
+              <td><a href="https://github.com/Gramatica-Design/GD-Website" target="_blank">github.com/Gramatica-Design/GD-Website</a></td>
+            </tr>
+            <tr>
+              <td>CDN-Basis (Produktion)</td>
+              <td><code>https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/</code></td>
+            </tr>
+            <tr>
+              <td>Branch</td>
+              <td><code>main</code></td>
+            </tr>
+            <tr>
+              <td>Lokaler Dev-Server</td>
+              <td><code>https://localhost:5500/js/</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Alle JavaScript-Dateien liegen unter <code>/js/</code> im Repository-Root.</p>
+    </section>
+
+
+    <!-- ═══ 4. CSS-EMBEDS ════════════════════════════════════════════ -->
+    <section id="s4" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2>CSS-Embeds</h2>
+      </div>
+
+      <!-- 4.1 -->
+      <h3 id="s4-1">4.1 Text-Animations-Styles</h3>
+      <p><strong>Wo:</strong> Site Settings → Head Code</p>
+      <p>CSS-Keyframe-Animation für den buchstabenweisen Farbeffekt (<code>text-fade-in</code>) sowie die CSS-Custom-Property für den Ease.</p>
+
+      <p><strong>Keyframe-Logik:</strong> Jeder Buchstabe animiert von <code>inherit</code> → Blau (<code>#66b2ef</code>) → Grau (<code>--_semantics---text_alternate</code>) → Endfarbe. Die Endfarbe wird über <code>--char-final-color</code> gesteuert: Standard ist Schwarz; mit dem <code>[data-accent]</code>-Attribut auf dem Container bleibt der Buchstabe Blau.</p>
+
+      <pre><code class="language-css">:root {
+  --ease-out-power2: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* Buchstaben die nach der Animation blau bleiben: [data-accent] auf den Container setzen */
+[data-accent] {
+  --char-final-color: var(--_semantics---text_blue);
+}
+
+[use-letter-spacing] .split-char:first-child {
+  letter-spacing: -0.06em;
+}
+
+h1 {
+  font-kerning: none;
+}
+
+[data-text-fade-in] .split-line .split-char.animate {
+  animation: text-fade-in 0.3s var(--ease-out-power2) both;
+}
+
+.text-big .split-char.animate {
+  animation: text-fade-in 0.3s var(--ease-out-power2) both;
+}
+
+@keyframes text-fade-in {
+  0%   { color: inherit; }
+  10%  { color: #66b2ef; }
+  20%  { color: #66b2ef; }
+  30%  { color: var(--_semantics---text_alternate); }
+  60%  { color: var(--_semantics---text_alternate); }
+  65%  { color: var(--char-final-color, var(--_semantics---text)); }
+  to   { color: var(--char-final-color, var(--_semantics---text)); }
+}</code></pre>
+
+      <!-- 4.2 -->
+      <h3 id="s4-2">4.2 <code>global-styles</code></h3>
+      <p><strong>Wo:</strong> Site Settings → Head Code</p>
+      <p>CSS-Reset, Webflow-Utility-Klassen und Fluid Typography. Normalisiert Browser-Defaults, setzt Basisstyles und implementiert flüssige Typografie zwischen definierten Viewport-Breakpoints.</p>
+
+      <h4>Fluid Typography</h4>
+      <p>Die <code>font-size</code> auf <code>html</code> skaliert linear zwischen folgenden Breakpoints. Alle <code>rem</code>-Werte in Webflow skalieren dadurch automatisch mit dem Viewport.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Viewport-Bereich</th><th>font-size (von → bis)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1px – 479px</td><td>12px → 16px</td></tr>
+            <tr><td>479px – 1440px</td><td>14px → 16px</td></tr>
+            <tr><td>1440px – 1920px</td><td>16px → 18px</td></tr>
+            <tr><td>1920px – 2400px</td><td>18px → 20px</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Wichtige Utility-Klassen</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Klasse</th><th>Funktion</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>.hide</code></td><td>Element immer ausblenden</td></tr>
+            <tr><td><code>.hide-tablet</code></td><td>Ausblenden auf Tablet (≤991px)</td></tr>
+            <tr><td><code>.hide-mobile-landscape</code></td><td>Ausblenden auf Mobile Landscape (≤767px)</td></tr>
+            <tr><td><code>.hide-mobile</code></td><td>Ausblenden auf Mobile (≤479px)</td></tr>
+            <tr><td><code>.text-style-3lines</code></td><td>Text nach 3 Zeilen mit „…" abschneiden</td></tr>
+            <tr><td><code>.text-style-2lines</code></td><td>Text nach 2 Zeilen mit „…" abschneiden</td></tr>
+            <tr><td><code>.inherit-color *</code></td><td>Farbe vom Elternelement erben</td></tr>
+            <tr><td><code>.spacing-clean</code>, <code>.margin-0</code>, <code>.padding-0</code></td><td>Abstands-Utilities</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code class="language-css">/* Make text look crisper */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Typography Reset */
+a, p, h1, h2, h3, h4, h5, h6, ul, .w-form, .w-nav-brand, [data-submit] {
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2 { hyphens: auto; }
+
+img, video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Line-Clamp Utilities */
+.text-style-3lines {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Hide Utilities */
+.hide { display: none !important; }
+@media screen and (max-width: 991px) { .hide-tablet { display: none !important; } }
+@media screen and (max-width: 767px) { .hide-mobile-landscape { display: none !important; } }
+@media screen and (max-width: 479px) { .hide-mobile { display: none !important; } }
+
+/* ===== FLUID DESIGN ===== */
+:root {
+  --font-from: 18;
+  --font-to: 18;
+  --vw-from: calc(1920 / 100);
+  --vw-to: calc(2400 / 100);
+  --coefficient: calc((var(--font-to) - var(--font-from)) / (var(--vw-to) - var(--vw-from)));
+  --base: calc((var(--font-from) - var(--vw-from) * var(--coefficient)) / 16);
+}
+html { font-size: calc(var(--base) * 1rem + var(--coefficient) * 1vw); }</code></pre>
+
+      <!-- 4.3 -->
+      <h3 id="s4-3">4.3 <code>cursor_embed</code></h3>
+      <p><strong>Wo:</strong> HTML Embed innerhalb der Cursor-Webflow-Komponente (nicht in Site Settings)</p>
+      <p>Styles für den Custom Cursor. Die <code>:has()</code>-Selektoren weiten den Cursor auf <code>3rem</code> aus, sobald ein interaktives Element gehoverd wird. Die CSS-Transition auf dem <code>.cursor</code>-Div (in Webflow definiert) übernimmt die Grössenänderungs-Animation.</p>
+
+      <pre><code class="language-css">/* Standardcursor überall ausblenden */
+* { cursor: none; }
+
+.cursor { pointer-events: none; }
+
+/* Cursor vergrössern auf interaktiven Elementen via :has() */
+body:has(a:hover) .cursor,
+body:has(button:hover) .cursor,
+body:has([animated-item]:hover) .cursor,
+body:has(.reviews_slide:hover) .cursor,
+body:has(.form_tab:hover) .cursor,
+body:has(.reviews_dot:hover) .cursor,
+body:has(.reviews_btn-next:hover) .cursor,
+body:has(.reviews_btn-prev:hover) .cursor,
+body:has(.nav_button:hover) .cursor,
+body:has([data-magnetic]:hover) .cursor,
+body:has(input[type='submit']:hover) .cursor,
+body:has(label:hover) .cursor,
+body:has(select:hover) .cursor {
+  width: 3rem;
+  height: 3rem;
+}
+
+[animated-item] { cursor: pointer; }
+
+/* Nav-Link Hover: alle Links auf 30% Opacity, gehoverter auf 100% */
+.nav_menu:has(.nav_menu_link:hover) .nav_menu_link {
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+}
+.nav_menu_link:hover { opacity: 1 !important; }
+
+/* Touch-Geräte: Standardcursor wiederherstellen */
+@media (pointer: coarse) {
+  * { cursor: auto; }
+  .cursor { display: none; }
+}</code></pre>
+
+      <!-- 4.4 -->
+      <h3 id="s4-4">4.4 <code>w-designmode</code></h3>
+      <p><strong>Wo:</strong> Site Settings oder Global Embed</p>
+      <p>Überschreibt Styles <strong>nur im Webflow Designer</strong> (<code>html.wf-design-mode</code> ist aktiv). Elemente, die per JavaScript auf <code>height: 0; opacity: 0</code> gesetzt werden, sind im Designer damit bearbeitbar.</p>
+
+      <div class="callout">
+        <strong>Warum nötig:</strong> <code>process.js</code> setzt <code>.row_text-wrapper</code> und <code>.process_keywords</code> via GSAP auf <code>height: 0; opacity: 0</code>. Im Designer läuft kein JavaScript — ohne diesen Block wären diese Elemente im Designer unsichtbar und nicht bearbeitbar.
+      </div>
+
+      <pre><code class="language-css">/* Standardcursor im Designer wiederherstellen */
+.wf-design-mode .cursor { cursor: default !important; }
+
+/* Prozess-Steps geöffnet anzeigen */
+html.wf-design-mode .process_number { font-size: 6rem; }
+html.wf-design-mode .row_text-wrapper,
+html.wf-design-mode .process_keywords {
+  overflow: visible;
+  height: auto;
+  opacity: 100%;
+  transform: translate(0px, 0rem);
+}
+html.wf-design-mode .process_text {
+  border-color: var(--_semantics---text_blue);
+}
+
+/* Reviews Content sichtbar */
+html.wf-design-mode .reviews_content { display: block; }
+
+/* Footer overflow für Designer */
+html.wf-design-mode .footer { overflow: visible; }
+
+/* Nav Mobile Wrapper: keine Pointer-Events im Designer */
+.wf-design-mode .nav_menu-mobile-wrapper { pointer-events: none; }</code></pre>
+
+      <!-- 4.5 -->
+      <h3 id="s4-5">4.5 <code>hero-magnet-animation</code></h3>
+      <p><strong>Wo:</strong> Home Page, HTML Embed im Hero-Bereich</p>
+      <p>CSS für die SVG-Animation im Hero-Bereich (Magnet + Feldlinien). Die Feldlinien starten unsichtbar; <code>feldlinien.js</code> setzt <code>stroke-dasharray</code> zur Laufzeit.</p>
+
+      <pre><code class="language-css">:root { --glow-duration: 2.5s; }
+
+#magnet-svg { color: var(--_primitives---brand--blue_500); }
+
+.magnet-outline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+.magnet-fill {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+/* Feldlinien starten unsichtbar; JS setzt stroke-dasharray */
+#Feldlinien_Final path {
+  fill: none;
+  stroke: #a2a2a2;
+  stroke-width: 1;
+  opacity: 0;
+  transition: none;
+}
+
+/* Glow-Effekt */
+.glow-blur, .glow-core {
+  fill: none;
+  stroke: var(--_primitives---brand--pink_500);
+  stroke-linecap: round;
+}
+.glow-blur {
+  stroke-width: 3;
+  filter: blur(4px);
+  opacity: 0.8;
+}
+.glow-core { stroke-width: 2; }</code></pre>
+
+      <!-- 4.6 -->
+      <h3 id="s4-6">4.6 <code>custom_css</code></h3>
+      <p><strong>Wo:</strong> Home Page</p>
+      <p>Seitenspezifische Styles ausschliesslich für die Home-Seite.</p>
+
+      <pre><code class="language-css">/* "Let's talk"-Button: Pressed-State */
+.link_button:active .button_background,
+.link_button:active .button_circle {
+  background-color: var(--_semantics---bacground_alternate_pressed);
+}
+
+/* Reviews Dots: erster Dot ohne rechten Margin */
+.reviews_dot:first-child { margin-right: 0; }
+
+/* Reviews Text: nach 14 Zeilen abschneiden */
+.reviews_text-wrapper {
+  display: -webkit-box;
+  -webkit-line-clamp: 14;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.reviews_text-wrapper.is-expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+/* Projektliste: invertierter Text auf Keywords */
+.project_item.text-inverted .keyword {
+  color: var(--_semantics---Text_white);
+  border-color: var(--_semantics---Text_white);
+}
+
+/* Projektliste: erste Liste mit Top-Border auf Desktop */
+@media screen and (min-width: 992px) {
+  .projects_list:first-child {
+    border-top-color: var(--_semantics---border-color);
+    border-top-width: var(--border-width);
+    border-top-style: solid;
+  }
+}</code></pre>
+    </section>
+
+
+    <!-- ═══ 5. JAVASCRIPT-DATEIEN ════════════════════════════════════ -->
+    <section id="s5" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2>JavaScript-Dateien</h2>
+      </div>
+      <p>Alle Dateien unter <code>/js/</code> im Repository, geladen via jsDelivr CDN.</p>
+
+      <!-- 5.1 cursor.js -->
+      <h3 id="s5-1">5.1 cursor.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Allen Seiten (Site Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">GSAP (global via Webflow)</span></div>
+      </div>
+
+      <p>Bewegt das <code>.cursor</code>-Element synchron mit dem Mauszeiger. Verwendet <code>gsap.quickTo</code> für eine flüssige, leicht verzögerte Bewegung (Lag-Effekt).</p>
+      <p><strong>Guard:</strong> Läuft nur wenn <code>(pointer: fine)</code> zutrifft — d.h. nur bei Maus/Trackpad, nicht auf Touch-Geräten.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Element</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>.cursor</code></td><td>Das Cursor-Div-Element (in der Cursor-Komponente)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul>
+        <li>Animations-Duration: <code>0.15s</code></li>
+        <li>Ease: <code>power2.out</code></li>
+        <li>Positionierung: <code>xPercent: -50, yPercent: -50</code> (Cursor-Mitte auf Maus-Position)</li>
+      </ul>
+
+      <!-- 5.2 nav.js -->
+      <h3 id="s5-2">5.2 nav.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Allen Seiten (Site Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">GSAP, Webflow Lottie API</span></div>
+      </div>
+
+      <p>Öffnet und schliesst die mobile Navigation. Animiert das Hamburger-Icon via Lottie (erste Hälfte = Öffnen, zweite Hälfte = Schliessen). Schliesst das Menü bei Klick auf einen Link oder ausserhalb des Menüs.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Klasse / Attribut</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>.nav_button</code></td><td>Hamburger-Button zum Öffnen/Schliessen</td></tr>
+            <tr><td><code>.nav_menu</code></td><td>Das Menü-Overlay (bekommt <code>is-open</code>)</td></tr>
+            <tr><td><code>.nav_menu-mobile-wrapper</code></td><td>Wrapper (bekommt <code>is-open</code> mit 600ms Verzögerung beim Schliessen)</td></tr>
+            <tr><td><code>.nav_lottie</code></td><td>Container des Lottie-Icons</td></tr>
+            <tr><td><code>.nav_menu_link</code></td><td>Alle Navigationslinks (schliessen Menü bei Klick)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Lottie-Animation:</strong> <code>playLottie(reverse: false)</code> = Frames 0 bis Hälfte (Öffnen); <code>playLottie(reverse: true)</code> = Frames Hälfte bis 0 (Schliessen). Die Lottie-Instanz wird via <code>Webflow.push()</code> asynchron nach dem Webflow-Init ermittelt.</p>
+
+      <!-- 5.3 footer-form.js -->
+      <h3 id="s5-3">5.3 footer-form.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Allen Seiten (Site Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">Keine</span></div>
+      </div>
+
+      <p>Öffnet und schliesst das Kontaktformular im Footer. Verhindert via <code>stopPropagation</code>, dass Klicks innerhalb des Formulars das Formular schliessen.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Klasse</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>.footer_form-wrapper</code></td><td>Wrapper des Formulars (bekommt <code>is-closed</code>)</td></tr>
+            <tr><td><code>.form_tab</code></td><td>Tab/Button zum Öffnen des Formulars</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul>
+        <li>Klick auf <code>.form_tab</code> → togglet <code>is-closed</code> (<code>stopPropagation</code> verhindert Bubbling)</li>
+        <li>Klick irgendwo auf der Seite → <code>is-closed</code> wird gesetzt (Formular schliesst)</li>
+        <li>Klick innerhalb <code>.footer_form-wrapper</code> → <code>stopPropagation</code> verhindert Schliessen</li>
+      </ul>
+
+      <!-- 5.4 text-animation.js -->
+      <h3 id="s5-4">5.4 text-animation.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Allen Seiten (Site Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">GSAP, SplitText, ScrollTrigger</span></div>
+      </div>
+
+      <p>Zwei Animationen: buchstabenweise Entrance-Animation des Hero-Texts (Home) und Scroll-basierte Buchstaben-Animation im Footer.</p>
+
+      <h4>Konfiguration</h4>
+      <pre><code class="language-js">const config = {
+  fadeIn: {
+    staggerEach: 0.03, // Zeit zwischen den Animationen der einzelnen Buchstaben (s)
+    delay: 0.2,        // Delay vor dem ersten Buchstaben (s)
+  },
+  magnet: {
+    stagger: 0.08,     // Zeitlicher Versatz zwischen den Magnet-Buchstaben (s)
+    chars: {
+      // W(0)e(1)b(2)s(3)i(4)t(5)e(6)s(7) d(8)i(9)e(10) a(11)n(12)z(13)i(14)e(15)h(16)e(17)n(18)
+      t:   { index: 5,  x: "24rem",  y: "4rem",   rotation: -10, moveOrder: 2 },
+      e6:  { index: 6,  x: "22rem",  y: "2.5rem", rotation:  14, moveOrder: 1 },
+      s:   { index: 7,  x: "20rem",  y: "3rem",   rotation: -10, moveOrder: 0 },
+      e10: { index: 10, x: "20rem",  y: "-0.5rem",rotation:  13, moveOrder: 2 },
+      e17: { index: 17, x: "28rem",  y: "-1.5rem",rotation: -15, moveOrder: 2 },
+      n:   { index: 18, x: "24rem",  y: "-2.2rem",rotation:   9, moveOrder: 1 },
+    },
+  },
+};</code></pre>
+
+      <h4>Benötigte Attribute und Klassen</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribut / Klasse</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>[data-text-fade-in]</code></td><td>Container der Hero-Überschrift (Home)</td></tr>
+            <tr><td><code>[data-text-scroll-in]</code></td><td>Container der Footer-Text-Animation</td></tr>
+            <tr><td><code>.text-big</code></td><td>Textblöcke innerhalb <code>[data-text-scroll-in]</code></td></tr>
+            <tr><td><code>[data-accent]</code></td><td>Buchstaben bleiben nach Animation blau</td></tr>
+            <tr><td><code>[use-letter-spacing]</code></td><td>Letter-Spacing-Korrektur auf dem ersten <code>split-char</code></td></tr>
+            <tr><td><code>.section_hero</code></td><td>Hero-Sektion — ScrollTrigger-Trigger für Magnet-Animation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Magnet-Animation — Buchstaben-Indizes</h4>
+      <p>Bestimmte Buchstaben aus „Websites die anziehen" bewegen sich beim Scrollen nach rechts. <code>moveOrder</code> bestimmt die zeitliche Staffelung (Stagger: 0.08s).</p>
+
+      <div class="char-index">
+        <div class="char-token"><div class="ch">W</div><div class="idx">0</div></div>
+        <div class="char-token"><div class="ch">e</div><div class="idx">1</div></div>
+        <div class="char-token"><div class="ch">b</div><div class="idx">2</div></div>
+        <div class="char-token"><div class="ch">s</div><div class="idx">3</div></div>
+        <div class="char-token"><div class="ch">i</div><div class="idx">4</div></div>
+        <div class="char-token is-magnetic"><div class="ch">t</div><div class="idx">5</div></div>
+        <div class="char-token is-magnetic"><div class="ch">e</div><div class="idx">6</div></div>
+        <div class="char-token is-magnetic"><div class="ch">s</div><div class="idx">7</div></div>
+        <div class="char-space"></div>
+        <div class="char-token"><div class="ch">d</div><div class="idx">8</div></div>
+        <div class="char-token"><div class="ch">i</div><div class="idx">9</div></div>
+        <div class="char-token is-magnetic"><div class="ch">e</div><div class="idx">10</div></div>
+        <div class="char-space"></div>
+        <div class="char-token"><div class="ch">a</div><div class="idx">11</div></div>
+        <div class="char-token"><div class="ch">n</div><div class="idx">12</div></div>
+        <div class="char-token"><div class="ch">z</div><div class="idx">13</div></div>
+        <div class="char-token"><div class="ch">i</div><div class="idx">14</div></div>
+        <div class="char-token"><div class="ch">e</div><div class="idx">15</div></div>
+        <div class="char-token"><div class="ch">h</div><div class="idx">16</div></div>
+        <div class="char-token is-magnetic"><div class="ch">e</div><div class="idx">17</div></div>
+        <div class="char-token is-magnetic"><div class="ch">n</div><div class="idx">18</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Buchstabe</th><th>Index</th><th>x</th><th>y</th><th>Rotation</th><th>moveOrder</th></tr></thead>
+          <tbody>
+            <tr><td>t</td><td>5</td><td>24rem</td><td>4rem</td><td>−10°</td><td>2</td></tr>
+            <tr><td>e</td><td>6</td><td>22rem</td><td>2.5rem</td><td>14°</td><td>1</td></tr>
+            <tr><td>s</td><td>7</td><td>20rem</td><td>3rem</td><td>−10°</td><td>0</td></tr>
+            <tr><td>e</td><td>10</td><td>20rem</td><td>−0.5rem</td><td>13°</td><td>2</td></tr>
+            <tr><td>e</td><td>17</td><td>28rem</td><td>−1.5rem</td><td>−15°</td><td>2</td></tr>
+            <tr><td>n</td><td>18</td><td>24rem</td><td>−2.2rem</td><td>9°</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Scroll-Lock beim Seitenaufruf</h4>
+      <p>Beim Laden bei <code>scrollY === 0</code> wird das Scrollen für die Dauer der Entrance-Animation gesperrt (wheel/touchmove/keydown Events abgefangen). Dadurch kollidiert die Entrance-Animation nicht mit der Magnet-ScrollTrigger-Animation. Der Scrollbalken bleibt sichtbar (kein <code>overflow: hidden</code>), um Layout-Shifts zu vermeiden.</p>
+
+      <h4>Reload-Handling</h4>
+      <p>Wenn <code>scrollY > 0</code> beim Laden (Reload bei gescrollter Position): Entrance-Animation wird übersprungen, Buchstaben werden sofort eingeblendet via <code>gsap.set(chars, { y: 0, opacity: 1 })</code>.</p>
+
+      <h4>Safari-Fix für kursive Buchstaben</h4>
+      <p>Kursive <code>.split-char</code>-Elemente innerhalb von <code>.split-line.accent</code> bekommen <code>padding: 0.1em; margin: -0.1em</code> via Inline-Style (nicht CSS), damit der kursive Überhang nicht an der <code>inline-block</code>-Box abgeschnitten wird.</p>
+
+      <!-- 5.5 process.js -->
+      <h3 id="s5-5">5.5 process.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Home (Page Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">GSAP, ScrollTrigger, ScrollToPlugin</span></div>
+      </div>
+
+      <p>Prozess-Schritte Akkordeon-Animation. Desktop: ScrollTrigger öffnet/schliesst Steps beim Scrollen. Mobile: Klick-Toggle.</p>
+
+      <h4>Benötigte Attribute</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribut</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>[sticky-container]</code></td><td>Der sticky Container mit allen Steps</td></tr>
+            <tr><td><code>[trigger-container]</code></td><td>Container mit unsichtbaren Trigger-Elementen (gleiche Anzahl wie Steps)</td></tr>
+            <tr><td><code>[step]</code></td><td>Jeder einzelne Prozess-Schritt</td></tr>
+            <tr><td><code>[step="reference"]</code></td><td>Ein Step als Referenz für Höhenmessungen</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Erwartete DOM-Struktur pro Step</h4>
+      <pre><code class="language-plaintext">[step]
+  ├── cols[0]  → Nummer (.process_number)
+  ├── cols[1]  → Text-Spalte
+  │     ├── children[0] → Heading
+  │     └── children[1] → Text-Wrapper (.row_text-wrapper)
+  └── cols[2]  → Rechte Spalte
+        └── children[1] → Keywords (.process_keywords)</code></pre>
+
+      <ul>
+        <li><strong>ScrollTrigger:</strong> <code>start: 'top 20%'</code>, <code>scrub: true</code></li>
+        <li><strong>Step öffnen:</strong> Nummer wird 3× grösser, Text erscheint, Border sichtbar; <code>stickyContainer.top</code> wird nach oben verschoben</li>
+        <li><strong>Breakpoint-Wechsel:</strong> <code>matchMedia</code>-Listener ruft <code>init()</code> erneut auf, räumt ScrollTrigger auf</li>
+      </ul>
+
+      <!-- 5.6 slider.js -->
+      <h3 id="s5-6">5.6 slider.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Home (Page Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">GSAP</span></div>
+      </div>
+
+      <p>Reviews-Slider mit Thumbnail-Vorschau, Swipe-Support und „Mehr lesen"-Funktion.</p>
+
+      <h4>Slider-Positionen</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Position</th><th>Zustand</th><th>left</th><th>Grösse</th><th>Sichtbar</th></tr></thead>
+          <tbody>
+            <tr><td>0 (aktiv)</td><td>gross, rechts</td><td>42%</td><td>58% × 100%</td><td>Ja, Farbe</td></tr>
+            <tr><td>1 (nächste)</td><td>Thumbnail</td><td>21%</td><td>19% × 19%</td><td>Ja, Graustufe</td></tr>
+            <tr><td>2 (übernächste)</td><td>Thumbnail</td><td>0%</td><td>19% × 19%</td><td>Ja, Graustufe</td></tr>
+            <tr><td>3+ (wartend)</td><td>ausserhalb</td><td>−25%</td><td>19% × 19%</td><td>Nein (opacity: 0)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>Thumbnail-Höhe:</strong> Berechnet als <code>19% der Container-Breite in Pixel</code>, nicht <code>19%</code> der Container-Höhe. Dadurch sind Thumbnails auf allen Breakpoints quadratisch.
+      </div>
+
+      <h4>Benötigte DOM-Elemente</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Klasse</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>.reviews_carousel-mask</code></td><td>Haupt-Container des Sliders</td></tr>
+            <tr><td><code>.reviews_slide</code></td><td>Jede Slide (Bild) — absolute Positionierung via GSAP</td></tr>
+            <tr><td><code>.reviews_content</code></td><td>Textinhalt pro Slide</td></tr>
+            <tr><td><code>.reviews_content-wrapper</code></td><td>Wrapper um <code>.reviews_content</code></td></tr>
+            <tr><td><code>.reviews_text-wrapper</code></td><td>Textbereich mit <code>-webkit-line-clamp: 14</code></td></tr>
+            <tr><td><code>.reviews_dots</code></td><td>Container für Dots (werden dynamisch generiert)</td></tr>
+            <tr><td><code>.reviews_btn-next</code></td><td>Weiter-Button</td></tr>
+            <tr><td><code>.reviews_btn-prev</code></td><td>Zurück-Button</td></tr>
+            <tr><td><code>.reviews_read-more</code></td><td>„Mehr lesen"-Link innerhalb eines Reviews</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>„Mehr lesen"-Logik</h4>
+      <p><code>.is-expanded</code> wird <strong>sofort</strong> beim Klick gesetzt (nicht erst im <code>onComplete</code>), damit <code>-webkit-line-clamp</code> sofort entfernt wird und GSAP die Ziel-Höhe korrekt messen kann. Beim Slide-Wechsel wird ein expandierter Text automatisch zurückgesetzt.</p>
+
+      <!-- 5.7 list-hover.js -->
+      <h3 id="s5-7">5.7 list-hover.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Home (Page Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">GSAP</span></div>
+      </div>
+
+      <p>Hover-Animation für die Projektliste. Desktop: farbiger Hintergrund fährt von oben oder unten rein (je nach Maus-Eintrittspunkt), Vorschaubild folgt dem Cursor. Mobile: Vorschaubilder statisch sichtbar, keine Hover-Animation.</p>
+
+      <h4>Konfiguration</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Wert</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>durationIn</code></td><td>0.45s</td><td>Hintergrund einfahren</td></tr>
+            <tr><td><code>durationOut</code></td><td>0.5s</td><td>Hintergrund ausfahren</td></tr>
+            <tr><td><code>easeIn</code></td><td><code>power3.inOut</code></td><td></td></tr>
+            <tr><td><code>easeOut</code></td><td><code>power2.inOut</code></td><td></td></tr>
+            <tr><td><code>textFlipThreshold</code></td><td>0.5</td><td>Ab 50% Überdeckung Text invertieren</td></tr>
+            <tr><td><code>cursorImg.followSpeed</code></td><td>0.1s</td><td>Wie schnell das Bild dem Cursor folgt</td></tr>
+            <tr><td><code>cursorImg.durationIn</code></td><td>0.5s</td><td>Einblend-Dauer des Vorschaubilds</td></tr>
+            <tr><td><code>cursorImg.durationOut</code></td><td>0.35s</td><td>Ausblend-Dauer des Vorschaubilds</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Benötigte Attribute/Klassen</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribut / Klasse</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>[animated-item]</code></td><td>Jedes Projekt-Listen-Element</td></tr>
+            <tr><td><code>[animated-bg]</code></td><td>Hintergrund-Element innerhalb <code>[animated-item]</code></td></tr>
+            <tr><td><code>.hover-img-mask</code></td><td>Container des Vorschaubilds</td></tr>
+            <tr><td><code>.projects_img</code></td><td>Das Vorschaubild (bewegt sich dem Cursor nach)</td></tr>
+            <tr><td><code>data-href="URL"</code></td><td>URL, die beim Klick/Tap geöffnet wird</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Mobile-Fix:</strong> <code>moveX</code> und <code>moveY</code> werden auf <code>null</code> gesetzt beim Breakpoint-Wechsel auf Mobile, damit das zuletzt gehoverte Bild dem Cursor nicht weiterfolgt.</p>
+
+      <!-- 5.8 feldlinien.js -->
+      <h3 id="s5-8">5.8 feldlinien.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Home (Page Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">Keine (reines JS mit requestAnimationFrame)</span></div>
+      </div>
+
+      <p>Animiert die SVG-Feldlinien im Magnet-Bild des Hero-Bereichs via progressiver <code>stroke-dasharray</code>-Animation. Nach 800ms erscheint der Glow per <code>fadeIn</code>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID / Klasse</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>#Feldlinien_Final</code></td><td>SVG-Gruppe mit allen Feldlinien-Pfaden</td></tr>
+            <tr><td><code>#Magnet_Glow</code></td><td>Glow-Element (erscheint nach 800ms)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>SVG-Klasse</th><th>Opazität</th></tr></thead>
+          <tbody>
+            <tr><td><code>.cls-1</code></td><td>0.3</td></tr>
+            <tr><td><code>.cls-2</code></td><td>0.6</td></tr>
+            <tr><td><code>.cls-3</code></td><td>0.7</td></tr>
+            <tr><td><code>.cls-6</code></td><td>0.1</td></tr>
+            <tr><td><code>.cls-8</code></td><td>0.5</td></tr>
+            <tr><td><code>.cls-10</code></td><td>0.4</td></tr>
+            <tr><td><code>.cls-11</code></td><td>0.1</td></tr>
+            <tr><td><code>.cls-12</code></td><td>0.2</td></tr>
+            <tr><td>(alle anderen)</td><td>0.7</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5.9 magnetic-button.js -->
+      <h3 id="s5-9">5.9 magnetic-button.js</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Geladen auf:</span><span class="js-meta-val">Home (Page Settings)</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Abhängigkeiten:</span><span class="js-meta-val">GSAP</span></div>
+      </div>
+
+      <p>Magnetischer Hover-Effekt — Elemente folgen dem Mauszeiger leicht. Nur auf Desktop (≥992px).</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Klasse / Attribut</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>.link_button</code></td><td>Haupt-CTA-Buttons (Gesamtes Element + innerer Text reagieren)</td></tr>
+            <tr><td><code>.button_text</code></td><td>Textinhalt innerhalb <code>.link_button</code> (halbe Intensität)</td></tr>
+            <tr><td><code>.nav_menu_link</code></td><td>Navigationslinks</td></tr>
+            <tr><td><code>[data-magnetic]</code></td><td>Beliebiges Element magnetisch machen</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul>
+        <li>Element: ±10px, <code>duration: 0.3s</code>, <code>ease: power2.out</code></li>
+        <li>Innerer Text (<code>.button_text</code>): ±5px (halbe Intensität)</li>
+        <li>Beim Verlassen: elastische Rückfeder-Animation, <code>duration: 0.6s</code>, <code>ease: elastic.out(1, 0.5)</code></li>
+      </ul>
+    </section>
+
+
+    <!-- ═══ 6. CURSOR-SYSTEM ═════════════════════════════════════════ -->
+    <section id="s6" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2>Cursor-System</h2>
+      </div>
+
+      <p>Das Cursor-System besteht aus drei voneinander abhängigen Teilen:</p>
+
+      <h3>6.1 Webflow-Komponente: Cursor</h3>
+      <p>Eine wiederverwendbare Webflow-Komponente, die das <code>.cursor</code>-Div enthält. In der Komponente werden Grösse und CSS-Transitions definiert (Webflow-Styles) und der <code>cursor_embed</code> eingebettet (HTML Embed).</p>
+
+      <h3>6.2 cursor.js — Bewegung</h3>
+      <ul>
+        <li>Liest <code>mousemove</code>-Events</li>
+        <li>Bewegt <code>.cursor</code> via <code>gsap.quickTo</code> (x und y) mit <code>duration: 0.15</code></li>
+        <li><code>gsap.set(cursor, { xPercent: -50, yPercent: -50 })</code> zentriert das Element auf der Mausposition</li>
+        <li>Läuft nur bei <code>(pointer: fine)</code> — kein Effekt auf Touch-Geräten</li>
+      </ul>
+
+      <h3>6.3 cursor_embed CSS — Verhalten</h3>
+      <ul>
+        <li><code>* { cursor: none }</code> — Standard-Cursor überall ausblenden</li>
+        <li><code>:has()</code>-Selektoren weiten den Cursor auf <code>3rem</code> aus bei Hover über interaktive Elemente</li>
+        <li><code>@media (pointer: coarse)</code> stellt Standard-Cursor wieder her und versteckt <code>.cursor</code></li>
+      </ul>
+
+      <h3>6.4 Cursor auf neuen Elementen vergrössern</h3>
+      <p>Neuen Selektor in <code>cursor_embed</code> in der Cursor-Komponente ergänzen:</p>
+
+      <pre><code class="language-css">body:has(.mein-element:hover) .cursor {
+  width: 3rem;
+  height: 3rem;
+}</code></pre>
+    </section>
+
+
+    <!-- ═══ 7. ATTRIBUTE & KLASSEN ══════════════════════════════════ -->
+    <section id="s7" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2>Webflow-Attribute &amp; Klassen — Übersicht</h2>
+      </div>
+
+      <h3>7.1 Custom Attribute (von Scripts erwartet)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attribut</th><th>Script</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>[data-text-fade-in]</code></td><td>text-animation.js</td><td>Hero-Text mit SplitText-Entrance-Animation</td></tr>
+            <tr><td><code>[data-text-scroll-in]</code></td><td>text-animation.js</td><td>Footer-Text mit Scroll-Animation</td></tr>
+            <tr><td><code>[data-accent]</code></td><td>text-animation.js</td><td>Buchstaben bleiben nach Animation blau</td></tr>
+            <tr><td><code>[use-letter-spacing]</code></td><td>text-animation.js</td><td>Letter-Spacing-Korrektur auf erstem Buchstaben</td></tr>
+            <tr><td><code>[animated-item]</code></td><td>list-hover.js</td><td>Projektlisten-Element mit Hover-Animation</td></tr>
+            <tr><td><code>[animated-bg]</code></td><td>list-hover.js</td><td>Hintergrund-Element für Hover-Animation</td></tr>
+            <tr><td><code>[data-href]</code></td><td>list-hover.js</td><td>URL, die bei Klick/Tap geöffnet wird</td></tr>
+            <tr><td><code>[data-magnetic]</code></td><td>magnetic-button.js</td><td>Element mit magnetischem Hover-Effekt</td></tr>
+            <tr><td><code>[sticky-container]</code></td><td>process.js</td><td>Sticky Container der Prozess-Steps</td></tr>
+            <tr><td><code>[trigger-container]</code></td><td>process.js</td><td>Container mit Scroll-Trigger-Elementen</td></tr>
+            <tr><td><code>[step]</code></td><td>process.js</td><td>Einzelner Prozess-Schritt</td></tr>
+            <tr><td><code>[step="reference"]</code></td><td>process.js</td><td>Referenz-Step für Höhenmessungen</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.2 CSS-Klassen (von Scripts erwartet)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Klasse</th><th>Script</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>.cursor</code></td><td>cursor.js</td><td>Custom Cursor Element</td></tr>
+            <tr><td><code>.nav_button</code></td><td>nav.js</td><td>Navigation Hamburger-Button</td></tr>
+            <tr><td><code>.nav_menu</code></td><td>nav.js</td><td>Navigation Menü-Overlay</td></tr>
+            <tr><td><code>.nav_menu-mobile-wrapper</code></td><td>nav.js</td><td>Navigation Mobile Wrapper</td></tr>
+            <tr><td><code>.nav_lottie</code></td><td>nav.js</td><td>Lottie-Animation Container</td></tr>
+            <tr><td><code>.nav_menu_link</code></td><td>nav.js, magnetic-button.js</td><td>Navigationslinks</td></tr>
+            <tr><td><code>.footer_form-wrapper</code></td><td>footer-form.js</td><td>Footer Formular Wrapper</td></tr>
+            <tr><td><code>.form_tab</code></td><td>footer-form.js</td><td>Footer Formular Tab</td></tr>
+            <tr><td><code>.section_hero</code></td><td>text-animation.js</td><td>Hero-Sektion (ScrollTrigger-Trigger)</td></tr>
+            <tr><td><code>.text-big</code></td><td>text-animation.js</td><td>Textblöcke für Footer-Scroll-Animation</td></tr>
+            <tr><td><code>.hover-img-mask</code></td><td>list-hover.js</td><td>Vorschaubild-Container</td></tr>
+            <tr><td><code>.projects_img</code></td><td>list-hover.js</td><td>Vorschaubild (folgt dem Cursor)</td></tr>
+            <tr><td><code>.reviews_carousel-mask</code></td><td>slider.js</td><td>Slider Haupt-Container</td></tr>
+            <tr><td><code>.reviews_slide</code></td><td>slider.js</td><td>Einzelne Slide</td></tr>
+            <tr><td><code>.reviews_content</code></td><td>slider.js</td><td>Review-Textinhalt</td></tr>
+            <tr><td><code>.reviews_text-wrapper</code></td><td>slider.js</td><td>Review-Text mit Line-Clamp</td></tr>
+            <tr><td><code>.reviews_dots</code></td><td>slider.js</td><td>Dots-Container</td></tr>
+            <tr><td><code>.reviews_btn-next</code></td><td>slider.js</td><td>Slider Weiter-Button</td></tr>
+            <tr><td><code>.reviews_btn-prev</code></td><td>slider.js</td><td>Slider Zurück-Button</td></tr>
+            <tr><td><code>.reviews_read-more</code></td><td>slider.js</td><td>„Mehr lesen"-Link</td></tr>
+            <tr><td><code>.link_button</code></td><td>magnetic-button.js</td><td>CTA-Buttons</td></tr>
+            <tr><td><code>.button_text</code></td><td>magnetic-button.js</td><td>Text innerhalb CTA-Button</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.3 Von Scripts erzeugte Klassen</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Klasse</th><th>Script</th><th>Wann gesetzt</th></tr></thead>
+          <tbody>
+            <tr><td><code>.split-char</code></td><td>text-animation.js</td><td>Generiert von SplitText — jeder Buchstabe</td></tr>
+            <tr><td><code>.split-line</code></td><td>text-animation.js</td><td>Generiert von SplitText — jede Textzeile</td></tr>
+            <tr><td><code>.animate</code></td><td>text-animation.js</td><td>Nach abgeschlossener Entrance-Animation</td></tr>
+            <tr><td><code>.is-open</code></td><td>nav.js</td><td>Navigation ist geöffnet</td></tr>
+            <tr><td><code>.is-closed</code></td><td>footer-form.js</td><td>Footer-Formular ist geschlossen</td></tr>
+            <tr><td><code>.text-inverted</code></td><td>list-hover.js</td><td>Hover-Hintergrund überdeckt Element zu &gt;50%</td></tr>
+            <tr><td><code>.is-active</code></td><td>slider.js</td><td>Aktiver Slider-Dot</td></tr>
+            <tr><td><code>.is-expanded</code></td><td>slider.js</td><td>Review-Text ist aufgeklappt</td></tr>
+            <tr><td><code>.reviews_dot</code></td><td>slider.js</td><td>Generiert — Dot-Elemente pro Slide</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ═══ 8. GSAP ABHÄNGIGKEITEN ══════════════════════════════════ -->
+    <section id="s8" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2>Externe Abhängigkeiten (GSAP)</h2>
+      </div>
+
+      <p>GSAP wird von Webflow automatisch geladen (integriert im Webflow-Runtime). Keine separate Einbindung nötig.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Plugin</th><th>Verwendet in</th></tr></thead>
+          <tbody>
+            <tr><td><code>ScrollTrigger</code></td><td>text-animation.js, process.js</td></tr>
+            <tr><td><code>ScrollToPlugin</code></td><td>process.js</td></tr>
+            <tr><td><code>SplitText</code></td><td>text-animation.js</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>GSAP-Plugins werden explizit registriert:</p>
+      <ul>
+        <li><code>text-animation.js</code>: <code>gsap.registerPlugin(SplitText, ScrollTrigger)</code></li>
+        <li><code>process.js</code>: <code>gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)</code></li>
+      </ul>
+    </section>
+
+
+    <!-- ═══ 9. LOKALE ENTWICKLUNG ════════════════════════════════════ -->
+    <section id="s9" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2>Lokale Entwicklung</h2>
+      </div>
+
+      <h3>9.1 Repository klonen</h3>
+      <pre><code class="language-bash">git clone https://github.com/Gramatica-Design/GD-Website
+cd GD-Website</code></pre>
+
+      <h3 id="s9-2">9.2 HTTPS für den Live Server (einmalig einrichten)</h3>
+      <p>Webflow läuft über HTTPS und blockiert HTTP-Scripts (Mixed Content Policy). Der Live Server muss daher ebenfalls über HTTPS laufen.</p>
+
+      <pre><code class="language-bash"># mkcert installieren (lokale CA für selbstsignierte Zertifikate)
+brew install mkcert
+mkcert -install        # Installiert lokale CA im System-Keychain (Touch ID erforderlich)
+
+# Zertifikate für localhost erstellen
+cd ~
+mkcert localhost 127.0.0.1
+# Erzeugt: ~/localhost+1.pem  und  ~/localhost+1-key.pem</code></pre>
+
+      <p>VS Code <code>settings.json</code> (Benutzer-Einstellungen):</p>
+
+      <pre><code class="language-json">"liveServer.settings.https": {
+  "enable": true,
+  "cert": "/Users/angelogramatica/localhost+1.pem",
+  "key": "/Users/angelogramatica/localhost+1-key.pem",
+  "passphrase": ""
+}</code></pre>
+
+      <h3 id="s9-3">9.3 Lokales Testen aktivieren</h3>
+      <ol>
+        <li><strong>Site Settings → Custom Code → Before <code>&lt;/body&gt;</code>:</strong> <code>isLocal_ss = true</code></li>
+        <li><strong>Home Page → Settings → Custom Code → Before <code>&lt;/body&gt;</code>:</strong> <code>isLocal = true</code></li>
+        <li>Live Server in VS Code starten (Port 5500)</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Nach dem Test:</strong> Beide Variablen wieder auf <code>false</code> zurücksetzen, Änderungen committen und pushen.
+      </div>
+
+      <h3 id="s9-4">9.4 Workflow: Änderung in JS-Datei</h3>
+      <pre><code class="language-bash"># 1. Datei bearbeiten, dann:
+git add js/dateiname.js
+git commit -m "kurze Beschreibung der Änderung"
+git push
+
+# 2. jsDelivr Cache purgen → https://www.jsdelivr.com/tools/purge
+# Beispiel: https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/slider.js</code></pre>
+
+      <h3 id="s9-5">9.5 Android-Debugging via USB</h3>
+      <ol>
+        <li>Android: Entwickleroptionen → USB-Debugging aktivieren</li>
+        <li>USB-Modus: „Dateiübertragung" wählen</li>
+        <li>Im Terminal: <code>adb devices</code> ausführen (Gerät sollte erscheinen)</li>
+        <li>Desktop Chrome: <code>chrome://inspect/#devices</code> öffnen und Seite inspizieren</li>
+      </ol>
+    </section>
+
+
+    <!-- ═══ 10. ERWEITERUNGEN ════════════════════════════════════════ -->
+    <section id="s10" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <h2>Änderungshinweise &amp; Erweiterungen</h2>
+      </div>
+
+      <h3>Neues interaktives Element → Cursor vergrössern</h3>
+      <p>Selektor in <code>cursor_embed</code> in der <strong>Cursor-Webflow-Komponente</strong> ergänzen:</p>
+      <pre><code class="language-css">body:has(.mein-neues-element:hover) .cursor {
+  width: 3rem;
+  height: 3rem;
+}</code></pre>
+
+      <h3>Neue Seite → seitenspezifische Scripts</h3>
+      <p>Scriptloader analog dem Home-Loader in den <strong>Page Settings → Custom Code → Before <code>&lt;/body&gt;</code></strong> der neuen Seite einfügen. Nur benötigte Dateien aufführen.</p>
+
+      <h3>Magnet-Buchstaben anpassen</h3>
+      <p>Konfiguration in <code>text-animation.js</code> unter <code>config.magnet.chars</code>. Der <code>index</code> bezieht sich auf die Position im gesplitten Text:</p>
+      <pre><code class="language-plaintext">W(0)e(1)b(2)s(3)i(4)t(5)e(6)s(7) d(8)i(9)e(10) a(11)n(12)z(13)i(14)e(15)h(16)e(17)n(18)</code></pre>
+
+      <h3>Prozess-Steps hinzufügen</h3>
+      <ol>
+        <li>Neuen <code>[step]</code>-Block in <code>[sticky-container]</code> hinzufügen (gleiche DOM-Struktur wie bestehende Steps)</li>
+        <li>Entsprechenden Trigger-Block (leeres <code>div</code>) in <code>[trigger-container]</code> hinzufügen (Anzahl muss übereinstimmen)</li>
+        <li><code>w-designmode</code>-CSS prüfen — der neue Step muss im Designer sichtbar sein</li>
+      </ol>
+
+      <h3>Neuen Script hinzufügen</h3>
+      <ol>
+        <li>Datei unter <code>/js/</code> im Repository ablegen</li>
+        <li>Dateinamen im entsprechenden Scriptloader-Array ergänzen</li>
+        <li>Committen, pushen, CDN-Cache purgen</li>
+      </ol>
+
+      <h3>jsDelivr-Cache purgen</h3>
+      <p>Nach jedem Push auf <code>main</code>, wenn Änderungen nicht erscheinen:</p>
+      <ul>
+        <li>Tool: <a href="https://www.jsdelivr.com/tools/purge" target="_blank">jsdelivr.com/tools/purge</a></li>
+        <li>Die betroffenen CDN-URLs eingeben (eine pro Zeile)</li>
+      </ul>
+      <pre><code class="language-plaintext">https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/cursor.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/slider.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/text-animation.js</code></pre>
+    </section>
+
+  </main>
+</div>
+
+<!-- Syntax Highlighting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  hljs.highlightAll();
+
+  // ── Active TOC link via IntersectionObserver ───────────────────
+  const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+  const sections = document.querySelectorAll('.doc-section, h3[id]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach((link) => {
+          link.classList.toggle('is-active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, {
+    rootMargin: '-10% 0px -80% 0px',
+    threshold: 0,
+  });
+
+  document.querySelectorAll('[id]').forEach((el) => {
+    if (el.id) observer.observe(el);
+  });
+</script>
+</body>
+</html>

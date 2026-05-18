@@ -512,6 +512,7 @@
         <a href="#s5-1" class="nav-link is-child">cursor.js</a>
         <a href="#s5-2" class="nav-link is-child">nav.js</a>
         <a href="#s5-3" class="nav-link is-child">footer-form.js</a>
+        <a href="#s5-3-1" class="nav-link is-child" style="padding-left:3.5rem;font-size:12px;">submit_embed</a>
         <a href="#s5-4" class="nav-link is-child">text-animation.js</a>
         <a href="#s5-5" class="nav-link is-child">process.js</a>
         <a href="#s5-6" class="nav-link is-child">slider.js</a>
@@ -1152,6 +1153,34 @@ html.wf-design-mode .footer { overflow: visible; }
         <li>Klick irgendwo auf der Seite → <code>is-closed</code> wird gesetzt (Formular schliesst)</li>
         <li>Klick innerhalb <code>.footer_form-wrapper</code> → <code>stopPropagation</code> verhindert Schliessen</li>
       </ul>
+
+      <h3 id="s5-3-1">5.3.1 submit_embed — Custom Element footer_form_submit-btn</h3>
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Wo:</span><span class="js-meta-val">HTML Embed innerhalb Custom Element <code>footer_form_submit-btn</code></span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Klasse:</span><span class="js-meta-val"><code>submit_embed</code></span></div>
+      </div>
+
+      <p>Der Submit-Button des Footer-Formulars ist ein <strong>Custom Element</strong> (<code>footer_form_submit-btn</code>) und enthält einen HTML Embed.</p>
+
+      <div class="callout">
+        <strong>Warum nötig:</strong> Webflow-Buttons innerhalb von Custom Elements erhalten nicht automatisch <code>type="submit"</code>. Ohne dieses Attribut lösen sie keinen Formular-Submit aus. Das Embed setzt es zur Laufzeit manuell auf alle <code>button[data-submit]</code>-Elemente.
+      </div>
+
+      <pre><code class="language-html">&lt;script&gt;
+  document.querySelectorAll('button[data-submit]').forEach(btn =&gt; {
+    btn.setAttribute('type', 'submit');
+  });
+&lt;/script&gt;</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Element</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><code>button[data-submit]</code></td><td>Der Submit-Button (in Webflow mit dem Attribut <code>data-submit</code> versehen)</td></tr>
+            <tr><td><code>.submit_embed</code></td><td>Klasse des HTML Embeds innerhalb von <code>footer_form_submit-btn</code></td></tr>
+          </tbody>
+        </table>
+      </div>
 
       <!-- 5.4 text-animation.js -->
       <h3 id="s5-4">5.4 text-animation.js</h3>

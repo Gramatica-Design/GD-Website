@@ -529,6 +529,25 @@ Bewegt das `.cursor`-Element synchron mit dem Mauszeiger. Verwendet `gsap.quickT
 - Klick irgendwo auf der Seite → `is-closed` wird gesetzt (Formular schliesst)
 - Klick innerhalb `.footer_form-wrapper` → `stopPropagation()` verhindert Schliessen beim Tippen/Klicken im Formular
 
+### 5.3.1 `submit_embed` — Custom Element `footer_form_submit-btn`
+
+Der Submit-Button des Footer-Formulars ist ein **Custom Element** (`footer_form_submit-btn`) und enthält einen HTML Embed mit der Klasse `submit_embed`.
+
+**Warum nötig:** Webflow-Buttons innerhalb von Custom Elements erhalten nicht automatisch `type="submit"`. Ohne dieses Attribut lösen sie keinen Formular-Submit aus. Das Embed setzt es zur Laufzeit manuell.
+
+```html
+<script>
+  document.querySelectorAll('button[data-submit]').forEach(btn => {
+    btn.setAttribute('type', 'submit');
+  });
+</script>
+```
+
+| Element | Beschreibung |
+|---------|-------------|
+| `button[data-submit]` | Der Submit-Button (in Webflow mit dem Attribut `data-submit` versehen) |
+| `.submit_embed` | Klasse des HTML Embeds innerhalb von `footer_form_submit-btn` |
+
 ---
 
 ### 5.4 `text-animation.js`

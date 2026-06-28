@@ -16,6 +16,12 @@ if (window.matchMedia("(pointer: fine)").matches) {
       yTo(e.clientY);
     });
 
+    // Beim Wiedereintritt in den Browser: Cursor sofort an Maus-Position setzen,
+    // damit kein Sprung vom alten Ort zur neuen Position animiert wird.
+    document.addEventListener("mouseenter", (e) => {
+      gsap.set(cursor, { x: e.clientX, y: e.clientY });
+    });
+
   }
 
 } // end desktop check

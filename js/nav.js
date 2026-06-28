@@ -93,8 +93,9 @@ document.querySelectorAll('.nav_menu_link').forEach(link => {
     const target = document.querySelector(href);
     if (!target) return;
     e.preventDefault();
+    e.stopPropagation();
     chaseScroll(target);
-  });
+  }, true); // capture phase — feuert vor Webflows eigenem Scroll-Handler
 });
 
 // Schliessen bei Klick ausserhalb des Menüs

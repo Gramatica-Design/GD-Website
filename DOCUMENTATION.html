@@ -474,6 +474,14 @@
     <nav class="sidebar-nav">
 
       <div class="nav-section">
+        <a href="#s0" class="nav-link is-parent">
+          <span class="nav-num">0</span> Schnelleinstieg
+        </a>
+        <a href="#s0-local" class="nav-link is-child">Lokal entwickeln</a>
+        <a href="#s0-prod" class="nav-link is-child">Live schalten</a>
+      </div>
+
+      <div class="nav-section">
         <a href="#s1" class="nav-link is-parent">
           <span class="nav-num">1</span> Site-Übersicht
         </a>
@@ -555,6 +563,13 @@
         </a>
       </div>
 
+      <div class="nav-section">
+        <a href="#s11" class="nav-link is-parent">
+          <span class="nav-num">11</span> Bekannte Probleme
+        </a>
+        <a href="#s11-1" class="nav-link is-child">Nav Scroll-Präzision</a>
+      </div>
+
     </nav>
   </aside>
 
@@ -587,6 +602,84 @@
       </div>
     </div>
 
+
+    <!-- ═══ 0. SCHNELLEINSTIEG ════════════════════════════════════ -->
+    <section id="s0" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">00</span>
+        <h2>Schnelleinstieg</h2>
+      </div>
+
+      <p>Dieses Projekt verbindet <strong>Webflow</strong> (Design + CMS) mit eigenem JavaScript aus einem GitHub-Repository. Die Skripte werden nicht direkt in Webflow eingebettet, sondern dynamisch über das CDN <a href="https://www.jsdelivr.com" target="_blank">jsDelivr</a> geladen — direkt von GitHub. Das ermöglicht es, Skripte lokal zu entwickeln und zu testen, ohne den Webflow-Editor anfassen zu müssen.</p>
+
+      <div class="table-wrap" style="margin-top:1rem;">
+        <table>
+          <thead><tr><th>Ressource</th><th>Link</th></tr></thead>
+          <tbody>
+            <tr><td>GitHub Repository</td><td><a href="https://github.com/Gramatica-Design/GD-Website" target="_blank">github.com/Gramatica-Design/GD-Website</a></td></tr>
+            <tr><td>jsDelivr Purge-Tool</td><td><a href="https://www.jsdelivr.com/tools/purge" target="_blank">jsdelivr.com/tools/purge</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Die zwei Script-Loader</h3>
+      <p>Das ist der häufigste Punkt der Verwirrung: Es gibt <strong>zwei separate Script-Loader</strong> in Webflow, die unabhängig voneinander umgeschaltet werden müssen.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Loader</th><th>Wo in Webflow</th><th>Lädt</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Site Scripts</strong></td>
+              <td>Site Settings → Custom Code → Before <code>&lt;/body&gt;</code></td>
+              <td><code>cursor.js</code>, <code>nav.js</code>, <code>footer-form.js</code>, <code>text-animation.js</code> — auf <strong>allen Seiten</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Home Scripts</strong></td>
+              <td>Home Page → Settings → Custom Code → Before <code>&lt;/body&gt;</code></td>
+              <td><code>process.js</code>, <code>slider.js</code>, <code>list-hover.js</code>, <code>feldlinien.js</code>, <code>magnetic-button.js</code> — <strong>nur Home</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="s0-local">Lokal entwickeln</h3>
+      <ol>
+        <li>In <strong>beiden</strong> Loadern die Flag auf <code>true</code> setzen und Webflow publishen:<br>
+          Site Settings: <code>const isLocal_ss = true;</code><br>
+          Home Page: <code>const isLocal = true;</code>
+        </li>
+        <li><strong>Live Server</strong> in VS Code starten (Port 5500, HTTPS via mkcert — siehe <a href="#s9-2">Abschnitt 9.2</a>)</li>
+        <li>Skript bearbeiten, Browser mit <kbd>Cmd+Shift+R</kbd> neu laden</li>
+      </ol>
+
+      <h3 id="s0-prod">Änderung live schalten</h3>
+      <ol>
+        <li>Flags in <strong>beiden</strong> Loadern wieder auf <code>false</code> setzen, Webflow publishen</li>
+        <li>Committen und pushen:
+          <pre><code class="language-bash">git add js/dateiname.js
+git commit -m "Beschreibung"
+git push</code></pre>
+        </li>
+        <li><strong>jsDelivr-Cache purgen</strong> — sonst bleibt die alte Version live.<br>
+          Alle URLs auf einmal bei <a href="https://www.jsdelivr.com/tools/purge" target="_blank">jsdelivr.com/tools/purge</a> eingeben:
+          <pre><code class="language-plaintext">https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/cursor.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/nav.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/footer-form.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/text-animation.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/process.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/slider.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/list-hover.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/feldlinien.js
+https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/magnetic-button.js</code></pre>
+        </li>
+        <li>Seite mit <kbd>Cmd+Shift+R</kbd> neu laden und prüfen</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Hinweis:</strong> Auch nach einem erfolgreichen Purge kann jsDelivr vereinzelt noch die alte Version ausliefern. Die CDN-URL direkt im Browser öffnen und prüfen ob der neue Code sichtbar ist. Als Notlösung kann temporär ein spezifischer Commit-Hash statt <code>@main</code> verwendet werden (z.B. <code>@5eca412</code>).
+      </div>
+    </section>
 
     <!-- ═══ 1. SITE-ÜBERSICHT ══════════════════════════════════════ -->
     <section id="s1" class="doc-section">
@@ -1717,6 +1810,57 @@ git push
       <pre><code class="language-plaintext">https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/cursor.js
 https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/slider.js
 https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/text-animation.js</code></pre>
+    </section>
+
+    <!-- ═══ 11. BEKANNTE PROBLEME ══════════════════════════════════ -->
+    <section id="s11" class="doc-section">
+      <div class="section-header">
+        <span class="section-num">11</span>
+        <h2>Bekannte Probleme</h2>
+      </div>
+
+      <h3 id="s11-1">11.1 Navigation Scroll-Präzision (erster Klick)</h3>
+
+      <div class="js-meta">
+        <div class="js-meta-item"><span class="js-meta-key">Status:</span><span class="js-meta-val">Offen — akzeptabler Kompromiss</span></div>
+        <div class="js-meta-item"><span class="js-meta-key">Betrifft:</span><span class="js-meta-val">nav.js · Sections Work &amp; About</span></div>
+      </div>
+
+      <p><strong>Symptom:</strong> Beim ersten Klick auf „Work" oder „About" in der Navigation landet die Seite ~107px zu tief. Beim zweiten Klick auf denselben oder einen anderen Link funktioniert die Navigation präzise.</p>
+
+      <h4>Root Cause</h4>
+      <p>Zwei überlagerte Probleme treffen beim ersten Klick zusammen:</p>
+      <ol>
+        <li><strong>Webflows eigener Scroll-Handler</strong> berechnet die Zielposition einmalig beim Klick als feste Pixelzahl und scrollt dorthin. Ein parallel gestarteter eigener Handler kommt dabei zu spät.</li>
+        <li><strong>Dynamische Dokumenthöhe:</strong> Die Process-Section expandiert ihre Steps über GSAP-ScrollTrigger-Animationen. Beim Durchscrollen wächst die Dokumenthöhe — die vorab berechnete Zielposition stimmt dadurch nicht mehr.</li>
+      </ol>
+      <p>Beim zweiten Klick hat sich Webflow neu kalibriert und die berechnete Position stimmt zufällig mit der tatsächlichen überein.</p>
+
+      <h4>Versuche</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ansatz</th><th>Beschreibung</th><th>Ergebnis</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>rAF chaseScroll</td>
+              <td><code>getBoundingClientRect().top</code> kontinuierlich messen, mit <code>window.scrollBy</code> nachkorrigieren</td>
+              <td>Funktioniert beim zweiten Klick, nicht beim ersten</td>
+            </tr>
+            <tr>
+              <td>Capture-Phase Interception</td>
+              <td>Event-Listener mit <code>{ capture: true }</code> + <code>e.stopPropagation()</code> um Webflows Handler zu verhindern</td>
+              <td>Hat das Problem ebenfalls nicht gelöst</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Mögliche zukünftige Ansätze</h4>
+      <ul>
+        <li><code>ScrollTrigger.refresh()</code> vor dem Scroll aufrufen, damit alle Positionen aktuell sind</li>
+        <li><code>process.js</code> so anpassen, dass alle Steps beim Initialisieren sofort in ihren finalen Zustand gebracht werden (statt animiert beim Scrollen)</li>
+        <li>Webflows Smooth-Scroll über <code>Webflow.destroy()</code> vollständig deaktivieren und durch eigene Logik ersetzen</li>
+      </ul>
     </section>
 
   </main>

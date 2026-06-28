@@ -62,40 +62,9 @@ navButton?.addEventListener('click', () => {
   }
 });
 
-// Schliessen bei Klick auf einen Navigationslink + präzises Anchor-Scrolling
-// Problem: Webflow berechnet Scroll-Ziele einmalig beim Klick. Die Process-Section
-// expandiert aber während des Scrollens (ScrollTrigger), was die Dokumenthöhe
-// ändert und das Ziel um ~107px verschiebt.
-// Lösung: rAF-Loop misst getBoundingClientRect().top auf jedem Frame neu –
-// Höhenänderungen werden dadurch automatisch kompensiert.
-let _scrollRafId = null;
-
-const chaseScroll = (target) => {
-  if (_scrollRafId) cancelAnimationFrame(_scrollRafId);
-  const deadline = performance.now() + 1500;
-
-  const tick = (now) => {
-    if (now > deadline) return;
-    const dist = target.getBoundingClientRect().top;
-    if (Math.abs(dist) < 1) return;
-    window.scrollBy(0, dist * 0.1);
-    _scrollRafId = requestAnimationFrame(tick);
-  };
-
-  _scrollRafId = requestAnimationFrame(tick);
-};
-
+// Schliessen bei Klick auf einen Navigationslink
 document.querySelectorAll('.nav_menu_link').forEach(link => {
-  link.addEventListener('click', (e) => {
-    closeMenu();
-    const href = link.getAttribute('href');
-    if (!href?.startsWith('#')) return;
-    const target = document.querySelector(href);
-    if (!target) return;
-    e.preventDefault();
-    e.stopPropagation();
-    chaseScroll(target);
-  }, true); // capture phase — feuert vor Webflows eigenem Scroll-Handler
+  link.addEventListener('click', closeMenu);
 });
 
 // Schliessen bei Klick ausserhalb des Menüs

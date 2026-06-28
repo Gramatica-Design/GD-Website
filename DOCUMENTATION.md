@@ -10,6 +10,7 @@
 
 ## Inhaltsverzeichnis
 
+0. [Schnelleinstieg](#0-schnelleinstieg)
 1. [Site-Übersicht & Seiten](#1-site-übersicht--seiten)
 2. [Script-Ladestrategie](#2-script-ladestrategie)
 3. [Git-Repository & CDN](#3-git-repository--cdn)
@@ -20,6 +21,66 @@
 8. [Externe Abhängigkeiten (GSAP)](#8-externe-abhängigkeiten-gsap)
 9. [Lokale Entwicklung](#9-lokale-entwicklung)
 10. [Änderungshinweise & Erweiterungen](#10-änderungshinweise--erweiterungen)
+11. [Bekannte Probleme](#11-bekannte-probleme)
+
+---
+
+## 0. Schnelleinstieg
+
+Dieses Projekt verbindet **Webflow** (Design + CMS) mit **eigenem JavaScript** aus einem GitHub-Repository. Die Skripte werden nicht direkt in Webflow eingebettet, sondern dynamisch über das CDN [jsDelivr](https://www.jsdelivr.com) geladen — direkt von GitHub. Das ermöglicht es, Skripte lokal zu entwickeln und zu testen, ohne den Webflow-Editor anfassen zu müssen.
+
+### Wichtige Links
+
+| | Link |
+|-|------|
+| GitHub Repository | https://github.com/Gramatica-Design/GD-Website |
+| jsDelivr Purge-Tool | https://www.jsdelivr.com/tools/purge |
+
+### Die zwei Script-Loader
+
+Es gibt **zwei separate Script-Loader** in Webflow — das ist der häufigste Punkt der Verwirrung:
+
+| Loader | Wo in Webflow | Lädt |
+|--------|--------------|------|
+| **Site Scripts** | Site Settings → Custom Code → Before `</body>` | `cursor.js`, `nav.js`, `footer-form.js`, `text-animation.js` — auf **allen Seiten** |
+| **Home Scripts** | Home Page → Settings → Custom Code → Before `</body>` | `process.js`, `slider.js`, `list-hover.js`, `feldlinien.js`, `magnetic-button.js` — **nur auf der Home-Seite** |
+
+Beide Loader haben je eine Flag-Variable (`isLocal_ss` bzw. `isLocal`) mit der man zwischen CDN und lokalem Server umschalten kann.
+
+### Workflow: Lokal entwickeln
+
+1. In **beiden** Loadern die Flag auf `true` setzen:
+   - Site Settings: `const isLocal_ss = true;`
+   - Home Page: `const isLocal = true;`
+2. Webflow publishen
+3. **Live Server** in VS Code starten (Port 5500, HTTPS via mkcert — siehe Abschnitt 9)
+4. Skript bearbeiten und im Browser testen (Cmd+Shift+R zum Neu-Laden)
+
+### Workflow: Änderung live schalten
+
+1. Flags wieder auf `false` setzen, Webflow publishen
+2. Skript committen und pushen:
+   ```bash
+   git add js/dateiname.js
+   git commit -m "Beschreibung"
+   git push
+   ```
+3. **jsDelivr-Cache purgen** — sonst bleibt die alte Version live:
+   Alle URLs auf einmal bei https://www.jsdelivr.com/tools/purge eingeben:
+   ```
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/cursor.js
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/nav.js
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/footer-form.js
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/text-animation.js
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/process.js
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/slider.js
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/list-hover.js
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/feldlinien.js
+   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/magnetic-button.js
+   ```
+4. Seite im Browser mit Cmd+Shift+R neu laden und prüfen
+
+> **Hinweis:** Auch nach einem erfolgreichen Purge kann jsDelivr vereinzelt noch die alte Version ausliefern. Wenn die neue Version nicht erscheint: direkt die CDN-URL im Browser öffnen und prüfen ob `chaseScroll` oder die neue Funktion dort sichtbar ist. Als Notlösung kann temporär ein spezifischer Commit-Hash statt `@main` verwendet werden (z.B. `@5eca412`).
 
 ---
 
@@ -1067,3 +1128,32 @@ Nach jedem Push auf `main`, wenn Änderungen nicht erscheinen:
   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/cursor.js
   https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/slider.js
   ```
+
+---
+
+## 11. Bekannte Probleme
+
+### 11.1 Navigation Scroll-Präzision (erster Klick)
+
+**Symptom:** Beim ersten Klick auf „Work" oder „About" in der Navigation landet die Seite ~107px zu tief. Beim zweiten Klick auf denselben oder einen anderen Link funktioniert die Navigation präzise.
+
+**Root Cause:** Zwei überlagerte Probleme:
+
+1. **Webflows eigener Scroll-Handler** berechnet die Zielposition einmalig beim Klick als feste Pixelzahl und scrollt dorthin. Ein parallel laufender eigener Handler kommt zu spät.
+2. **Dynamische Dokumenthöhe:** Die Process-Section expandiert ihre Steps über GSAP-ScrollTrigger-Animationen. Beim Durchscrollen durch die Process-Section wächst die Dokumenthöhe — die vorab berechnete Zielposition stimmt dadurch nicht mehr.
+
+Beim ersten Klick treffen beide Probleme zusammen. Beim zweiten Klick hat sich Webflow neu kalibriert und die Zielposition stimmt zufällig.
+
+**Versuche:**
+
+| Ansatz | Beschreibung | Ergebnis |
+|--------|-------------|---------|
+| rAF chaseScroll | `getBoundingClientRect().top` kontinuierlich messen, mit `window.scrollBy` nachkorrigieren | Funktioniert beim zweiten Klick, nicht beim ersten |
+| Capture-Phase Interception | Event-Listener mit `{ capture: true }` + `e.stopPropagation()` um Webflows Handler zu verhindern | Hat das Problem ebenfalls nicht gelöst |
+
+**Status:** Offen. Die Abweichung ist subtil (~107px bei einer langen Seite) und stört die UX nicht stark genug für eine weitere Prioritisierung.
+
+**Mögliche zukünftige Ansätze:**
+- `ScrollTrigger.refresh()` vor dem Scroll aufrufen, damit alle ScrollTrigger-Positionen aktuell sind
+- `process.js` so anpassen, dass es beim Initialisieren alle Steps sofort in ihren finalen Zustand bringt (statt animiert beim Scrollen)
+- Webflows Smooth-Scroll über die Webflow JS-API (`Webflow.destroy()`) deaktivieren und vollständig durch eigene Logik ersetzen

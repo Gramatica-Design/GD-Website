@@ -1133,27 +1133,12 @@ Nach jedem Push auf `main`, wenn Änderungen nicht erscheinen:
 
 ## 11. Bekannte Probleme
 
-### 11.1 Navigation Scroll-Präzision (erster Klick)
+Bekannte Bugs sind in einer separaten Datei dokumentiert, inklusive Root-Cause-Analyse, bisherigen Lösungsversuchen und Empfehlungen.
 
-**Symptom:** Beim ersten Klick auf „Work" oder „About" in der Navigation landet die Seite ~107px zu tief. Beim zweiten Klick auf denselben oder einen anderen Link funktioniert die Navigation präzise.
+- **Markdown:** [KNOWN_BUGS.md](KNOWN_BUGS.md)
+- **HTML (interaktiv):** [KNOWN_BUGS.html](KNOWN_BUGS.html)
 
-**Root Cause:** Zwei überlagerte Probleme:
-
-1. **Webflows eigener Scroll-Handler** berechnet die Zielposition einmalig beim Klick als feste Pixelzahl und scrollt dorthin. Ein parallel laufender eigener Handler kommt zu spät.
-2. **Dynamische Dokumenthöhe:** Die Process-Section expandiert ihre Steps über GSAP-ScrollTrigger-Animationen. Beim Durchscrollen durch die Process-Section wächst die Dokumenthöhe — die vorab berechnete Zielposition stimmt dadurch nicht mehr.
-
-Beim ersten Klick treffen beide Probleme zusammen. Beim zweiten Klick hat sich Webflow neu kalibriert und die Zielposition stimmt zufällig.
-
-**Versuche:**
-
-| Ansatz | Beschreibung | Ergebnis |
-|--------|-------------|---------|
-| rAF chaseScroll | `getBoundingClientRect().top` kontinuierlich messen, mit `window.scrollBy` nachkorrigieren | Funktioniert beim zweiten Klick, nicht beim ersten |
-| Capture-Phase Interception | Event-Listener mit `{ capture: true }` + `e.stopPropagation()` um Webflows Handler zu verhindern | Hat das Problem ebenfalls nicht gelöst |
-
-**Status:** Offen. Die Abweichung ist subtil (~107px bei einer langen Seite) und stört die UX nicht stark genug für eine weitere Prioritisierung.
-
-**Mögliche zukünftige Ansätze:**
-- `ScrollTrigger.refresh()` vor dem Scroll aufrufen, damit alle ScrollTrigger-Positionen aktuell sind
-- `process.js` so anpassen, dass es beim Initialisieren alle Steps sofort in ihren finalen Zustand bringt (statt animiert beim Scrollen)
-- Webflows Smooth-Scroll über die Webflow JS-API (`Webflow.destroy()`) deaktivieren und vollständig durch eigene Logik ersetzen
+| Bug | Status | Betrifft |
+|-----|--------|---------|
+| BUG-01: Navigation Scroll-Präzision | Offen | nav.js |
+| BUG-02: Custom Cursor Re-Entry | Teilweise behoben | cursor.js |

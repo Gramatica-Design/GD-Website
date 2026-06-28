@@ -53,8 +53,8 @@
       flex-shrink: 0;
       border-right: 1px solid var(--gray-200);
       position: sticky;
-      top: 0;
-      height: 100vh;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -451,6 +451,47 @@
 
     .char-space { width: 0.75em; }
 
+    /* ── Page Navigation ─────────────────────────────────────────── */
+    :root { --nav-h: 44px; }
+
+    .page-nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      height: var(--nav-h);
+      gap: 0.25rem;
+    }
+
+    .page-nav-brand {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-right: 1.25rem;
+    }
+
+    .page-nav-link {
+      padding: 0 0.875rem;
+      height: var(--nav-h);
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-400);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .page-nav-link:hover { color: var(--black); text-decoration: none; }
+    .page-nav-link.is-active { color: var(--black); border-bottom-color: var(--black); }
+
     /* ── Responsive ──────────────────────────────────────────────── */
     @media (max-width: 900px) {
       .sidebar { display: none; }
@@ -460,6 +501,11 @@
 </head>
 
 <body>
+<nav class="page-nav">
+  <span class="page-nav-brand">GD Website</span>
+  <a href="DOCUMENTATION.html" class="page-nav-link is-active">Dokumentation</a>
+  <a href="KNOWN_BUGS.html" class="page-nav-link">Known Bugs</a>
+</nav>
 <div class="layout">
 
   <!-- ═══════════════════════════════════════════════
@@ -564,10 +610,9 @@
       </div>
 
       <div class="nav-section">
-        <a href="#s11" class="nav-link is-parent">
-          <span class="nav-num">11</span> Bekannte Probleme
+        <a href="KNOWN_BUGS.html" class="nav-link is-parent" style="color:var(--blue);">
+          <span class="nav-num" style="color:var(--blue);">→</span> Known Bugs
         </a>
-        <a href="#s11-1" class="nav-link is-child">Nav Scroll-Präzision</a>
       </div>
 
     </nav>
@@ -1812,55 +1857,18 @@ https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/slider.js
 https://cdn.jsdelivr.net/gh/Gramatica-Design/GD-Website@main/js/text-animation.js</code></pre>
     </section>
 
-    <!-- ═══ 11. BEKANNTE PROBLEME ══════════════════════════════════ -->
+    <!-- ═══ 11. BEKANNTE PROBLEME → eigene Seite ═══════════════════ -->
     <section id="s11" class="doc-section">
       <div class="section-header">
         <span class="section-num">11</span>
         <h2>Bekannte Probleme</h2>
       </div>
-
-      <h3 id="s11-1">11.1 Navigation Scroll-Präzision (erster Klick)</h3>
-
-      <div class="js-meta">
-        <div class="js-meta-item"><span class="js-meta-key">Status:</span><span class="js-meta-val">Offen — akzeptabler Kompromiss</span></div>
-        <div class="js-meta-item"><span class="js-meta-key">Betrifft:</span><span class="js-meta-val">nav.js · Sections Work &amp; About</span></div>
-      </div>
-
-      <p><strong>Symptom:</strong> Beim ersten Klick auf „Work" oder „About" in der Navigation landet die Seite ~107px zu tief. Beim zweiten Klick auf denselben oder einen anderen Link funktioniert die Navigation präzise.</p>
-
-      <h4>Root Cause</h4>
-      <p>Zwei überlagerte Probleme treffen beim ersten Klick zusammen:</p>
-      <ol>
-        <li><strong>Webflows eigener Scroll-Handler</strong> berechnet die Zielposition einmalig beim Klick als feste Pixelzahl und scrollt dorthin. Ein parallel gestarteter eigener Handler kommt dabei zu spät.</li>
-        <li><strong>Dynamische Dokumenthöhe:</strong> Die Process-Section expandiert ihre Steps über GSAP-ScrollTrigger-Animationen. Beim Durchscrollen wächst die Dokumenthöhe — die vorab berechnete Zielposition stimmt dadurch nicht mehr.</li>
-      </ol>
-      <p>Beim zweiten Klick hat sich Webflow neu kalibriert und die berechnete Position stimmt zufällig mit der tatsächlichen überein.</p>
-
-      <h4>Versuche</h4>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Ansatz</th><th>Beschreibung</th><th>Ergebnis</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>rAF chaseScroll</td>
-              <td><code>getBoundingClientRect().top</code> kontinuierlich messen, mit <code>window.scrollBy</code> nachkorrigieren</td>
-              <td>Funktioniert beim zweiten Klick, nicht beim ersten</td>
-            </tr>
-            <tr>
-              <td>Capture-Phase Interception</td>
-              <td>Event-Listener mit <code>{ capture: true }</code> + <code>e.stopPropagation()</code> um Webflows Handler zu verhindern</td>
-              <td>Hat das Problem ebenfalls nicht gelöst</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h4>Mögliche zukünftige Ansätze</h4>
-      <ul>
-        <li><code>ScrollTrigger.refresh()</code> vor dem Scroll aufrufen, damit alle Positionen aktuell sind</li>
-        <li><code>process.js</code> so anpassen, dass alle Steps beim Initialisieren sofort in ihren finalen Zustand gebracht werden (statt animiert beim Scrollen)</li>
-        <li>Webflows Smooth-Scroll über <code>Webflow.destroy()</code> vollständig deaktivieren und durch eigene Logik ersetzen</li>
-      </ul>
+      <p>Bekannte Bugs sind auf einer separaten Seite dokumentiert, inklusive Root-Cause-Analyse, bisherigen Lösungsversuchen und Empfehlungen.</p>
+      <p style="margin-top:1rem;">
+        <a href="KNOWN_BUGS.html" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);padding:0.6rem 1.1rem;border-radius:6px;font-weight:500;font-size:13.5px;text-decoration:none;">
+          → Known Bugs öffnen
+        </a>
+      </p>
     </section>
 
   </main>

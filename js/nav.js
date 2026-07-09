@@ -63,7 +63,7 @@ navButton?.addEventListener('click', () => {
 });
 
 // Schliessen bei Klick auf einen Navigationslink
-document.querySelectorAll('.nav_menu_link').forEach(link => {
+document.querySelectorAll('.nav_link').forEach(link => {
   link.addEventListener('click', closeMenu);
 });
 

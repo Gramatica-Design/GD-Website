@@ -3,7 +3,7 @@
 
 if (window.matchMedia("(min-width: 992px)").matches) {
 
-const targets = document.querySelectorAll('.link_button, .nav_menu_link, [data-magnetic]');
+const targets = document.querySelectorAll('.link_button, .nav_link, [data-magnetic]');
 
 targets.forEach((el) => {
   const isButton = el.classList.contains('link_button');

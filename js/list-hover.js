@@ -7,7 +7,6 @@
     durationOut: 0.5,           // Dauer der Hintergrund-Ausblend-Animation (s)
     easeIn: "power3.inOut",
     easeOut: "power2.inOut",
-    textFlipThreshold: 0.5,     // Ab 50% Abdeckung wird der Text invertiert
     cursorImg: {
       followSpeed: 0.1,         // Wie schnell das Bild dem Cursor folgt (s)
       durationIn: 0.5,          // Einblend-Dauer des Vorschaubilds
@@ -33,33 +32,11 @@
     return relY < rect.height / 2 ? "top" : "bottom";
   }
 
-  // ─── Text-Invertierung ────────────────────────────────────────────────────
-  // Prüft während der Animation, wie weit der farbige Hintergrund das Element
-  // bereits überdeckt. Ab dem textFlipThreshold (50%) wird die Klasse
-  // "text-inverted" gesetzt, damit der Text auf dem Hintergrund lesbar bleibt.
-
-  function checkTextFlip(item, bg, isEntering) {
-    const matrix = new DOMMatrix(getComputedStyle(bg).transform);
-    const translateY = matrix.m42;                             // aktueller Y-Versatz in px
-    const itemHeight = item.getBoundingClientRect().height;
-    const coverage = 1 - Math.abs(translateY) / itemHeight;   // 0 = nicht überdeckt, 1 = voll überdeckt
-    if (isEntering) {
-      coverage >= config.textFlipThreshold
-        ? item.classList.add("text-inverted")
-        : item.classList.remove("text-inverted");
-    } else {
-      coverage < config.textFlipThreshold
-        ? item.classList.remove("text-inverted")
-        : item.classList.add("text-inverted");
-    }
-  }
-
   // ─── Hintergrund-Animation ────────────────────────────────────────────────
   // animateIn: Schiebt den farbigen Hintergrund ([animated-bg]) von oben oder
   //            unten ins Element hinein.
   // animateOut: Schiebt ihn in die Austrittsrichtung wieder heraus.
-  // killTweensOf verhindert, dass eine laufende Animation mit einer neuen
-  // kollidiert (z.B. bei schnellem Hover).
+  // killTweensOf verhindert Kollisionen bei schnellem Hover.
 
   function animateIn(item, fromDirection) {
     const bg = item.querySelector("[animated-bg]");
@@ -69,12 +46,6 @@
       y: "0%",
       duration: config.durationIn,
       ease: config.easeIn,
-      onUpdate() {
-        checkTextFlip(item, bg, true);
-      },
-      onComplete() {
-        item.classList.add("text-inverted");
-      },
     });
   }
 
@@ -85,12 +56,6 @@
       y: toDirection === "top" ? "-100%" : "100%",
       duration: config.durationOut,
       ease: config.easeOut,
-      onUpdate() {
-        checkTextFlip(item, bg, false);
-      },
-      onComplete() {
-        item.classList.remove("text-inverted");
-      },
     });
   }
 

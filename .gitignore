@@ -1,2 +1,6 @@
 .DS_Store
 .claude/
+
+# FFmpeg two-pass encoding logs
+ffmpeg2pass-*.log
+ffmpeg2pass-*.log.mbtree

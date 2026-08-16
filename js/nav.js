@@ -19,7 +19,11 @@ window.Webflow.push(() => {
     all[0] ||
     null;
 
-  if (lottieAnim) lottieAnim.goToAndStop(0, true);
+  if (lottieAnim) {
+    lottieAnim.autoplay = false;
+    lottieAnim.stop();
+    lottieAnim.goToAndStop(0, true);
+  }
 });
 
 const playLottie = (reverse) => {

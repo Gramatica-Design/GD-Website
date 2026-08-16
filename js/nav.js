@@ -3,59 +3,25 @@
 
 const navButton = document.querySelector('.nav_button');
 const navMenu = document.querySelector('.nav_menu');
+const navWrapper = document.querySelector('.nav_menu-mobile-wrapper');
 
 let isOpen = false;
-let lottieAnim = null;
-let lottieTween = null;
-
-window.Webflow = window.Webflow || [];
-window.Webflow.push(() => {
-  const navLottieEl = document.querySelector('.nav_lottie');
-  const all = Webflow.require('lottie').lottie.getRegisteredAnimations();
-
-  lottieAnim =
-    all.find(a => navLottieEl && navLottieEl.contains(a.wrapper)) ||
-    all.find(a => a.wrapper === navLottieEl) ||
-    all[0] ||
-    null;
-
-  if (lottieAnim) {
-    lottieAnim.autoplay = false;
-    lottieAnim.stop();
-    lottieAnim.goToAndStop(0, true);
-  }
-});
-
-const playLottie = (reverse) => {
-  if (!lottieAnim) return;
-  const half = Math.floor(lottieAnim.totalFrames * 0.5);
-  const fromFrame = reverse ? half : 0;
-  const toFrame = reverse ? 0 : half;
-
-  if (lottieTween) lottieTween.kill();
-
-  const obj = { frame: fromFrame };
-  lottieTween = gsap.to(obj, {
-    frame: toFrame,
-    duration: 1,
-    ease: 'power1.inOut',
-    onUpdate: () => lottieAnim.goToAndStop(Math.round(obj.frame), true),
-  });
-};
 
 const closeMenu = () => {
   if (!isOpen) return;
   isOpen = false;
   navMenu?.classList.remove('is-open');
-  playLottie(true);
+  setTimeout(() => {
+    if (navWrapper) navWrapper.style.height = '0';
+  }, 700);
 };
 
 navButton?.addEventListener('click', () => {
   if (!isOpen) {
     // Öffnen
     isOpen = true;
+    if (navWrapper) navWrapper.style.height = 'auto';
     navMenu?.classList.add('is-open');
-    playLottie(false);
   } else {
     closeMenu();
   }

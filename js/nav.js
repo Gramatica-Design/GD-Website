@@ -3,7 +3,6 @@
 
 const navButton = document.querySelector('.nav_button');
 const navMenu = document.querySelector('.nav_menu');
-const navWrapper = document.querySelector('.nav_menu-mobile-wrapper');
 
 let isOpen = false;
 let lottieAnim = null;
@@ -44,9 +43,6 @@ const closeMenu = () => {
   if (!isOpen) return;
   isOpen = false;
   navMenu?.classList.remove('is-open');
-  setTimeout(() => {
-    navWrapper?.classList.remove('is-open');
-  }, 600);
   playLottie(true);
 };
 
@@ -54,7 +50,6 @@ navButton?.addEventListener('click', () => {
   if (!isOpen) {
     // Öffnen
     isOpen = true;
-    navWrapper?.classList.add('is-open');
     navMenu?.classList.add('is-open');
     playLottie(false);
   } else {

@@ -23,7 +23,9 @@ navButton?.addEventListener('click', () => {
     isOpen = true;
     if (navWrapper) navWrapper.style.height = '26rem';
     navMenu?.classList.add('is-open');
-    if (navWrapper) navWrapper.style.overflow = 'visible';
+    setTimeout(() => {
+      if (navWrapper) navWrapper.style.overflow = 'visible';
+    }, 700);
   } else {
     closeMenu();
   }

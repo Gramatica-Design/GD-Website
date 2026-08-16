@@ -10,6 +10,7 @@ let isOpen = false;
 const closeMenu = () => {
   if (!isOpen) return;
   isOpen = false;
+  if (navWrapper) navWrapper.style.overflow = '';  // zurück auf CSS-Default (hidden)
   navMenu?.classList.remove('is-open');
   setTimeout(() => {
     if (navWrapper) navWrapper.style.height = '0rem';
@@ -20,8 +21,9 @@ navButton?.addEventListener('click', () => {
   if (!isOpen) {
     // Öffnen
     isOpen = true;
-    if (navWrapper) navWrapper.style.height = "26rem";
+    if (navWrapper) navWrapper.style.height = '26rem';
     navMenu?.classList.add('is-open');
+    if (navWrapper) navWrapper.style.overflow = 'visible';
   } else {
     closeMenu();
   }

@@ -12,7 +12,7 @@ const closeMenu = () => {
   isOpen = false;
   navMenu?.classList.remove('is-open');
   setTimeout(() => {
-    if (navWrapper) navWrapper.style.height = '0';
+    if (navWrapper) navWrapper.style.height = '0rem';
   }, 700);
 };
 
@@ -20,7 +20,7 @@ navButton?.addEventListener('click', () => {
   if (!isOpen) {
     // Öffnen
     isOpen = true;
-    if (navWrapper) navWrapper.style.height = 'auto';
+    if (navWrapper) navWrapper.style.height = "26rem";
     navMenu?.classList.add('is-open');
   } else {
     closeMenu();

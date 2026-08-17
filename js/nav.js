@@ -29,6 +29,9 @@ const animateLottie = (from, to, duration, ease) => {
 const navButton = document.querySelector('.nav_button');
 const navMenu   = document.querySelector('.nav_menu');
 
+// Startzustand: Menü ausserhalb oben
+gsap.set(navMenu, { y: '-100%' });
+
 const openMenu = () => {
   const styles = getComputedStyle(document.documentElement);
   gsap.to(document.documentElement, {
@@ -39,6 +42,7 @@ const openMenu = () => {
     '--nav_menu-height': styles.getPropertyValue('--nav_menu-end-height').trim(),
     duration: 0.82, ease: 'power1.out', overwrite: true,
   });
+  gsap.to(navMenu, { y: '0%', duration: 0.82, ease: 'power1.out', overwrite: true });
   animateLottie(0, 57, 0.82, 'power1.out');
   navMenu?.classList.add('is-open');
 };
@@ -53,6 +57,7 @@ const closeMenu = () => {
     '--nav_height': styles.getPropertyValue('--nav_closed-height').trim(),
     duration: 0.82, ease: 'power1.in', overwrite: true,
   });
+  gsap.to(navMenu, { y: '-100%', duration: 0.7, ease: 'power3.in', overwrite: true });
   animateLottie(57, 0, 0.82, 'power1.in');
   navMenu?.classList.remove('is-open');
 };

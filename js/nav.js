@@ -30,12 +30,12 @@ const navButton = document.querySelector('.nav_button');
 const navMenu   = document.querySelector('.nav_menu');
 
 const openMenu = () => {
-  const styles = getComputedStyle(document.documentElement);
-  gsap.to(document.documentElement, {
+  const styles = getComputedStyle(document.body);
+  gsap.to(document.body, {
     '--nav_height':      styles.getPropertyValue('--nav_end-height').trim(),
     duration: 0.7, ease: 'power3.out', overwrite: true,
   });
-  gsap.to(document.documentElement, {
+  gsap.to(document.body, {
     '--nav_menu-height': styles.getPropertyValue('--nav_menu-end-height').trim(),
     duration: 0.82, ease: 'power1.out', overwrite: true,
   });
@@ -44,12 +44,12 @@ const openMenu = () => {
 };
 
 const closeMenu = () => {
-  const styles = getComputedStyle(document.documentElement);
-  gsap.to(document.documentElement, {
+  const styles = getComputedStyle(document.body);
+  gsap.to(document.body, {
     '--nav_menu-height': '0rem',
     duration: 0.7, ease: 'power3.in', overwrite: true,
   });
-  gsap.to(document.documentElement, {
+  gsap.to(document.body, {
     '--nav_height': styles.getPropertyValue('--nav_closed-height').trim(),
     duration: 0.82, ease: 'power1.in', overwrite: true,
   });

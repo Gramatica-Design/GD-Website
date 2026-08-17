@@ -33,13 +33,13 @@ const openMenu = () => {
   const styles = getComputedStyle(document.body);
   gsap.to(document.body, {
     '--nav_height':      styles.getPropertyValue('--nav_end-height').trim(),
-    duration: 0.7, ease: 'power3.out', overwrite: 'auto',
+    duration: 0.5, ease: 'power3.out', overwrite: 'auto',
   });
   gsap.to(document.body, {
     '--nav_menu-height': styles.getPropertyValue('--nav_menu-end-height').trim(),
-    duration: 0.82, ease: 'power1.out', overwrite: 'auto',
+    duration: 0.55, ease: 'power1.out', overwrite: 'auto',
   });
-  animateLottie(0, 57, 0.82, 'power1.out');
+  animateLottie(0, 57, 0.55, 'none');
   navMenu?.classList.add('is-open');
 };
 
@@ -47,13 +47,13 @@ const closeMenu = () => {
   const styles = getComputedStyle(document.body);
   gsap.to(document.body, {
     '--nav_menu-height': '0rem',
-    duration: 0.7, ease: 'power3.in', overwrite: 'auto',
+    duration: 0.5, ease: 'power3.in', overwrite: 'auto',
   });
   gsap.to(document.body, {
     '--nav_height': styles.getPropertyValue('--nav_closed-height').trim(),
-    duration: 0.82, ease: 'power1.in', overwrite: 'auto',
+    duration: 0.55, ease: 'power1.in', overwrite: 'auto',
   });
-  animateLottie(57, 0, 0.82, 'power1.in');
+  animateLottie(57, 0, 0.55, 'none');
   navMenu?.classList.remove('is-open');
 };
 

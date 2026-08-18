@@ -19,9 +19,8 @@ window.Webflow.push(() => {
 
 const lottieProxy = { frame: 0 };
 
-const animateLottie = (from, to, duration, ease) => {
+const animateLottie = (to, duration, ease) => {
   if (!lottieAnim) return;
-  lottieProxy.frame = from;
   gsap.to(lottieProxy, {
     frame: to, duration, ease, overwrite: true,
     onUpdate: () => lottieAnim.goToAndStop(Math.round(lottieProxy.frame), true),
@@ -41,7 +40,7 @@ const openMenu = () => {
     '--nav_menu-height': styles.getPropertyValue('--nav_menu-end-height').trim(),
     duration: 0.55, ease: 'power1.out', overwrite: 'auto',
   });
-  animateLottie(0, 57, 0.55, 'none');
+  animateLottie(57, 0.55, 'none');
   navMenu?.classList.add('is-open');
 };
 
@@ -55,7 +54,7 @@ const closeMenu = () => {
     '--nav_height': styles.getPropertyValue('--nav_closed-height').trim(),
     duration: 0.55, ease: 'power1.in', overwrite: 'auto',
   });
-  animateLottie(57, 0, 0.55, 'none');
+  animateLottie(0, 0.55, 'none');
   navMenu?.classList.remove('is-open');
 };
 

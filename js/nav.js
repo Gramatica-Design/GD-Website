@@ -57,7 +57,7 @@ const closeMenu = () => {
     '--nav_height': styles.getPropertyValue('--nav_closed-height').trim(),
     duration: 0.55, ease: 'power1.in', overwrite: 'auto',
   });
-  animateLottie(0, 0.55, 'none');
+  animateLottie(119, 0.55, 'none');
   navMenu?.classList.remove('is-open');
 };
 

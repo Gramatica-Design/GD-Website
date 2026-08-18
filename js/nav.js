@@ -17,12 +17,14 @@ window.Webflow.push(() => {
   }
 });
 
+const lottieProxy = { frame: 0 };
+
 const animateLottie = (from, to, duration, ease) => {
   if (!lottieAnim) return;
-  const obj = { frame: from };
-  gsap.to(obj, {
-    frame: to, duration, ease, overwrite: 'auto',
-    onUpdate: () => lottieAnim.goToAndStop(Math.round(obj.frame), true),
+  lottieProxy.frame = from;
+  gsap.to(lottieProxy, {
+    frame: to, duration, ease, overwrite: true,
+    onUpdate: () => lottieAnim.goToAndStop(Math.round(lottieProxy.frame), true),
   });
 };
 

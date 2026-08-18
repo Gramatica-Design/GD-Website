@@ -21,6 +21,7 @@ const lottieProxy = { frame: 0 };
 
 const animateLottie = (to, duration, ease) => {
   if (!lottieAnim) return;
+  console.log('animateLottie → to:', to, '| current frame:', lottieProxy.frame);
   gsap.to(lottieProxy, {
     frame: to, duration, ease, overwrite: true,
     onUpdate: () => lottieAnim.goToAndStop(Math.round(lottieProxy.frame), true),

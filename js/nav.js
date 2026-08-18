@@ -13,6 +13,7 @@ window.Webflow.push(() => {
     all[0] || null;
   if (lottieAnim) {
     lottieAnim.autoplay = false;
+    lottieAnim.stop();
     lottieAnim.goToAndStop(0, true);
   }
 });

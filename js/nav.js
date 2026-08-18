@@ -20,8 +20,7 @@ window.Webflow.push(() => {
 const lottieProxy = { frame: 0 };
 
 const animateLottie = (to, duration, ease) => {
-  if (!lottieAnim) { console.warn('[nav] animateLottie: lottieAnim ist null'); return; }
-  console.log('[nav] animateLottie → to:', to, '| current frame:', lottieProxy.frame);
+  if (!lottieAnim) return;
   gsap.to(lottieProxy, {
     frame: to, duration, ease, overwrite: true,
     onUpdate: () => lottieAnim.goToAndStop(Math.round(lottieProxy.frame), true),
@@ -32,7 +31,6 @@ const navButton = document.querySelector('.nav_button');
 const navMenu   = document.querySelector('.nav_menu');
 
 const openMenu = () => {
-  console.log('[nav] openMenu');
   const styles = getComputedStyle(document.body);
   gsap.to(document.body, {
     '--nav_height':      styles.getPropertyValue('--nav_end-height').trim(),
@@ -47,7 +45,6 @@ const openMenu = () => {
 };
 
 const closeMenu = () => {
-  console.log('[nav] closeMenu');
   const styles = getComputedStyle(document.body);
   gsap.to(document.body, {
     '--nav_menu-height': '0rem',
@@ -61,25 +58,18 @@ const closeMenu = () => {
   navMenu?.classList.remove('is-open');
 };
 
-navButton?.addEventListener('click', (e) => {
-  console.log('[nav] button click | is-open:', navMenu?.classList.contains('is-open'), '| target:', e.target.className);
+navButton?.addEventListener('click', () => {
   navMenu?.classList.contains('is-open') ? closeMenu() : openMenu();
 });
 
 document.addEventListener('click', (e) => {
   if (!navMenu?.classList.contains('is-open')) return;
-  const inMenu   = !!e.target.closest('.nav_menu');
-  const inButton = !!e.target.closest('.nav_button');
-  console.log('[nav] doc click | inMenu:', inMenu, '| inButton:', inButton, '| target:', e.target.className);
-  if (inMenu || inButton) return;
+  if (e.target.closest('.nav_menu') || e.target.closest('.nav_button')) return;
   closeMenu();
 });
 
 document.querySelectorAll('.nav_link').forEach(link => {
-  link.addEventListener('click', () => {
-    console.log('[nav] nav_link click');
-    closeMenu();
-  });
+  link.addEventListener('click', () => closeMenu());
 });
 
 //#endregion

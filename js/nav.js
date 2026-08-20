@@ -38,7 +38,7 @@ const openMenu = () => {
     duration: 0.5, ease: 'power3.out', overwrite: 'auto',
   });
   gsap.to(document.body, {
-    '--nav_menu-height': styles.getPropertyValue('--nav_menu-end-height').trim(),
+    '--nav_menu-height': navMenu.scrollHeight + 'px',
     duration: 0.55, ease: 'power1.out', overwrite: 'auto',
   });
   animateLottie(57, 0.55, 'none');
